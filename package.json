@@ -18,7 +18,8 @@
     "src/",
     "templates/",
     "__tests__/",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "plop": "plop",
