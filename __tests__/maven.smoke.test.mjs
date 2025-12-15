@@ -23,7 +23,8 @@ const it = process.env.RUN_MAVEN_IT === "1" ? test : test.skip;
 it("maven clean verify succeeds on generated repo", async () => {
 
   const repoRoot = tmp.dirSync({ unsafeCleanup: true }).name;
-  const localRepo = path.join(repoRoot, ".m2");
+  const mavenRepoLocal = process.env.MAVEN_REPO_LOCAL || ".m2";
+  const localRepo = path.isAbsolute(mavenRepoLocal) ? mavenRepoLocal : path.join(repoRoot, mavenRepoLocal);
 
   const plop = await nodePlop(path.join(__dirname, "..", "plopfile.cjs"));
 
@@ -59,7 +60,7 @@ it("maven clean verify succeeds on generated repo", async () => {
 
   await run(
     "mvn",
-    ["-B", "-ntp", "-Dmaven.repo.local=.m2", "-DskipTests", "clean", "verify"],
+    ["-B", "-ntp", `-Dmaven.repo.local=${mavenRepoLocal}`, "-DskipTests", "clean", "verify"],
     { cwd: repoRoot, env: { ...process.env, MAVEN_OPTS: process.env.MAVEN_OPTS || "-Duser.timezone=UTC" } }
   );
 }, 20 * 60 * 1000);

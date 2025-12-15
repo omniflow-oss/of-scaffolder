@@ -41,6 +41,11 @@ npm run test:maven
 
 This requires a working Maven + JDK setup and network access to download dependencies (or a warmed local Maven cache).
 
+## GitHub Actions
+
+- `.github/workflows/ci.yml`: runs `npm ci` + `npm test` on PRs and pushes to `main`
+- `.github/workflows/maven-smoke.yml`: runs the Maven smoke test on a nightly schedule and on manual dispatch
+
 ## Use the generators
 
 Run Plop and pick a generator:
