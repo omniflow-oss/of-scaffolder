@@ -70,6 +70,22 @@ npm run plop -- service
 npm run plop -- lib
 ```
 
+## Use via npx
+
+From any repo directory:
+
+```bash
+npx @ofcx/of-scaffolder
+```
+
+Run a specific generator:
+
+```bash
+npx @ofcx/of-scaffolder platform
+npx @ofcx/of-scaffolder service
+npx @ofcx/of-scaffolder lib
+```
+
 ## Generator: platform
 
 Bootstraps a new repo root with:
