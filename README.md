@@ -45,6 +45,14 @@ This requires a working Maven + JDK setup and network access to download depende
 
 - `.github/workflows/ci.yml`: runs `npm ci` + `npm test` on PRs and pushes to `main`
 - `.github/workflows/maven-smoke.yml`: runs the Maven smoke test on a nightly schedule and on manual dispatch
+- `.github/workflows/publish-npm.yml`: publishes to npm on tags like `v0.1.0` (requires `NPM_TOKEN` secret)
+
+## Publishing to npm
+
+1. Create an npm access token with publish rights for the `@ofcx` scope.
+2. Add it to GitHub repo secrets as `NPM_TOKEN`.
+3. Bump `package.json` version and push a tag:
+   - `git tag v0.1.0 && git push --tags`
 
 ## Use the generators
 

@@ -1,8 +1,25 @@
 {
-  "name": "@yourorg/platform-scaffolder",
-  "version": "1.0.0",
-  "private": true,
+  "name": "@ofcx/of-scaffolder",
+  "version": "0.1.0",
+  "private": false,
   "type": "commonjs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/omniflow-oss/of-scaffolder.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": [
+    "plopfile.cjs",
+    "jest.config.cjs",
+    "src/",
+    "templates/",
+    "__tests__/",
+    "README.md"
+  ],
   "scripts": {
     "plop": "plop",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
