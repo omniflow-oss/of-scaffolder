@@ -1,0 +1,13 @@
+package {{basePackage}}.infrastructure.projections;
+
+import {{basePackage}}.domain.projections.{{pascal projectionName}}Projection;
+import {{basePackage}}.domain.projections.{{pascal projectionName}}ProjectionRepository;
+import java.util.Optional;
+
+public class InMemory{{pascal projectionName}}ProjectionRepository implements {{pascal projectionName}}ProjectionRepository {
+  @Override
+  public Optional<{{pascal projectionName}}Projection> findById(String id) {
+    return Optional.empty();
+  }
+}
+

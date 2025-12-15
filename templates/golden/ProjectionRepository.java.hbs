@@ -1,0 +1,8 @@
+package {{basePackage}}.domain.projections;
+
+import java.util.Optional;
+
+public interface {{pascal projectionName}}ProjectionRepository {
+  Optional<{{pascal projectionName}}Projection> findById(String id);
+}
+

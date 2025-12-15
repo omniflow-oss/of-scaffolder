@@ -16,6 +16,13 @@ const validateJavaPackage = (v) => {
   return true;
 };
 
+const validateJavaIdentifier = (v) => {
+  const s = String(v || "").trim();
+  if (!s) return "Required";
+  if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(s)) return "Invalid identifier (letters, digits, underscore; must start with letter)";
+  return true;
+};
+
 const validateRootPath = async (v) => {
   const p = path.resolve(process.cwd(), v || "");
   const pom = path.join(p, "pom.xml");
@@ -30,4 +37,4 @@ const validateNewRootPath = async (v) => {
   return true;
 };
 
-module.exports = { validateArtifactId, validateJavaPackage, validateRootPath, validateNewRootPath };
+module.exports = { validateArtifactId, validateJavaPackage, validateJavaIdentifier, validateRootPath, validateNewRootPath };

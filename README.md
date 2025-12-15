@@ -5,6 +5,7 @@ Plop-based scaffolder that generates:
 - A Maven multi-module **platform skeleton** (root + `bom/` + `platform-starter/`) via the `platform` generator
 - A Quarkus **service module** under `services/<serviceName>`
 - A Java **library module** under `libs/<libName>`
+- Golden-path building blocks inside services: `connector`, `feature`, `endpoint`, `projection`
 - Optional GitHub Actions workflows (CI + GHCR publish) under `.github/workflows/` (only if absent)
 
 It is designed for a Maven “platform” repo layout (root `pom.xml` at the repo root) and refuses to overwrite existing modules.
@@ -68,6 +69,10 @@ Or run a specific generator:
 npm run plop -- platform
 npm run plop -- service
 npm run plop -- lib
+npm run plop -- connector
+npm run plop -- feature
+npm run plop -- endpoint
+npm run plop -- projection
 ```
 
 ## Use via npx
@@ -84,6 +89,10 @@ Run a specific generator:
 npx @ofcx/of-scaffolder platform
 npx @ofcx/of-scaffolder service
 npx @ofcx/of-scaffolder lib
+npx @ofcx/of-scaffolder connector
+npx @ofcx/of-scaffolder feature
+npx @ofcx/of-scaffolder endpoint
+npx @ofcx/of-scaffolder projection
 ```
 
 ## Generator: platform
@@ -96,6 +105,7 @@ Bootstraps a new repo root with:
 - `.platform-scaffolder.json` (defaults consumed by `service`/`lib` generators)
 - `services/` and `libs/` directories
 - `.gitignore`
+- `config/checkstyle/checkstyle.xml` and `config/spotbugs/exclude.xml`
 - Optional workflows under `.github/workflows/`
 
 Safety: refuses to run if `pom.xml` already exists in the target `rootDir`.
@@ -163,6 +173,16 @@ The `platform` generator seeds markers that make subsequent module/dependency in
 - `bom/pom.xml`: `<!-- scaffolder:deps:start -->` / `<!-- scaffolder:deps:end -->`
 
 If markers are missing (existing repos), the scaffolder falls back to inserting near the end of the corresponding sections.
+
+## Guardrails (quality + architecture)
+
+Generated repos include a `quality` Maven profile (in `platform-starter/pom.xml`) that runs:
+
+- Spotless (Google Java Format)
+- Checkstyle
+- SpotBugs
+
+Generated services include an ArchUnit test (`ArchitectureTest`) enforcing layer boundaries.
 
 ## Safety / validation
 

@@ -11,6 +11,21 @@ const toJavaPackageSafe = (s = "") => toKebab(s).replace(/-/g, "").replace(/[^a-
 
 const javaPackageToPath = (pkg = "") => String(pkg || "").trim().replace(/\./g, "/");
 
+const toPascalCase = (s = "") => {
+  const parts = String(s || "")
+    .trim()
+    .replace(/[_\s]+/g, "-")
+    .split("-")
+    .filter(Boolean);
+  return parts.map((p) => p.charAt(0).toUpperCase() + p.slice(1).replace(/[^a-zA-Z0-9]/g, "")).join("");
+};
+
+const toCamelCase = (s = "") => {
+  const pascal = toPascalCase(s);
+  if (!pascal) return "";
+  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+};
+
 const ensureDir = async (dir) => fs.ensureDir(dir);
 
 const writeIfAbsent = async (file, content) => {
@@ -122,6 +137,8 @@ module.exports = {
   toKebab,
   toJavaPackageSafe,
   javaPackageToPath,
+  toPascalCase,
+  toCamelCase,
   ensureDir,
   writeIfAbsent,
   readPomCoordinates,

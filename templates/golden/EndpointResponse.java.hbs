@@ -1,0 +1,8 @@
+package {{basePackage}}.api.dto;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record {{pascal endpointName}}Response(
+    @JsonProperty("status") String status
+) {}
+

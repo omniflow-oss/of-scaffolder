@@ -6,6 +6,8 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
+import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 
 @Provider
@@ -24,10 +26,12 @@ public class GlobalExceptionMapper implements ExceptionMapper<Exception> {
     final var body = new ErrorResponse(
         ErrorCode.INTERNAL_ERROR.name(),
         "Unexpected error",
+        Map.of(),
         correlationId
+        ,
+        Instant.now()
     );
 
     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(body).build();
   }
 }
-

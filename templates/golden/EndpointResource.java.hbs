@@ -1,0 +1,23 @@
+package {{basePackage}}.api;
+
+import {{basePackage}}.api.dto.{{pascal endpointName}}Response;
+import {{basePackage}}.application.usecases.Get{{pascal endpointName}}UseCase;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+
+@Path("/{{kebab endpointName}}")
+@Produces(MediaType.APPLICATION_JSON)
+public class {{pascal endpointName}}Resource {
+
+  @Inject
+  Get{{pascal endpointName}}UseCase useCase;
+
+  @GET
+  public {{pascal endpointName}}Response get() {
+    return useCase.execute();
+  }
+}
+

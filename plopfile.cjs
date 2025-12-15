@@ -1,12 +1,14 @@
 const path = require("path");
 const fs = require("fs-extra");
-const { validateArtifactId, validateJavaPackage, validateRootPath, validateNewRootPath } = require("./src/validators.cjs");
+const { validateArtifactId, validateJavaPackage, validateJavaIdentifier, validateRootPath, validateNewRootPath } = require("./src/validators.cjs");
 const {
   ensureDir,
   writeIfAbsent,
   toKebab,
   toJavaPackageSafe,
   javaPackageToPath,
+  toPascalCase,
+  toCamelCase,
   nowIsoDate,
   readPomCoordinates,
   insertModuleIfMissing,
@@ -52,6 +54,8 @@ module.exports = function (plop) {
   plop.setHelper("kebab", (s) => toKebab(s));
   plop.setHelper("nowIsoDate", () => nowIsoDate());
   plop.setHelper("javaPackagePath", (s) => javaPackageToPath(s));
+  plop.setHelper("pascal", (s) => toPascalCase(s));
+  plop.setHelper("camel", (s) => toCamelCase(s));
 
   plop.setGenerator("platform", {
     description: "Bootstrap a new platform repo (root + bom + platform-starter + base folders)",
@@ -123,6 +127,8 @@ module.exports = function (plop) {
           templateFile: template("platform", "platform-scaffolder.json.hbs")
         },
         { type: "add", path: path.join(rootDir, ".gitignore"), templateFile: template("platform", "gitignore.hbs") },
+        { type: "add", path: path.join(rootDir, "config/checkstyle/checkstyle.xml"), templateFile: template("platform", "checkstyle.xml.hbs") },
+        { type: "add", path: path.join(rootDir, "config/spotbugs/exclude.xml"), templateFile: template("platform", "spotbugs-exclude.xml.hbs") },
         async (a) => {
           await ensureDir(path.join(rootDir, "services"));
           await ensureDir(path.join(rootDir, "libs"));
@@ -286,6 +292,11 @@ module.exports = function (plop) {
         },
         {
           type: "add",
+          path: path.join(svcDir, "src/main/java/{{javaPackagePath basePackage}}/shared/.gitkeep"),
+          templateFile: template("service", "gitkeep.hbs")
+        },
+        {
+          type: "add",
           path: path.join(svcDir, "src/main/java/{{javaPackagePath basePackage}}/api/ProfileResource.java"),
           templateFile: template("service", "ProfileResource.java.hbs")
         },
@@ -306,8 +317,18 @@ module.exports = function (plop) {
         },
         {
           type: "add",
+          path: path.join(svcDir, "src/main/java/{{javaPackagePath basePackage}}/infrastructure/logging/RequestContextFilter.java"),
+          templateFile: template("service", "RequestContextFilter.java.hbs")
+        },
+        {
+          type: "add",
           path: path.join(svcDir, "src/test/java/{{javaPackagePath basePackage}}/ServiceTest.java"),
           templateFile: template("service", "ServiceTest.java.hbs")
+        },
+        {
+          type: "add",
+          path: path.join(svcDir, "src/test/java/{{javaPackagePath basePackage}}/ArchitectureTest.java"),
+          templateFile: template("service", "ArchitectureTest.java.hbs")
         },
         { type: "add", path: path.join(svcDir, "README.md"), templateFile: template("_common", "README.md.hbs") },
         async (a) => {
@@ -461,6 +482,231 @@ module.exports = function (plop) {
           });
           if (res === null) return "Skipped BOM registration (no dependencyManagement/dependencies)";
           return res ? `Registered BOM dependency: ${a.libName}` : `BOM dependency already present: ${a.libName}`;
+        }
+      ];
+    }
+  });
+
+  plop.setGenerator("connector", {
+    description: "Add a connector extension point inside an existing service",
+    prompts: [
+      { type: "input", name: "rootDir", message: "Repo root directory:", default: "../..", validate: validateRootPath },
+      { type: "input", name: "serviceName", message: "Existing service name under services/:", validate: validateArtifactId },
+      {
+        type: "input",
+        name: "groupId",
+        message: "Maven groupId:",
+        default: (a) => {
+          const rootDir = path.resolve(process.cwd(), a.rootDir || ".");
+          const cfg = readRepoConfigSync(rootDir);
+          return cfg.groupId || "com.yourorg";
+        }
+      },
+      {
+        type: "input",
+        name: "basePackage",
+        message: "Base Java package for the service:",
+        validate: validateJavaPackage,
+        default: (a) => `${a.groupId}.${toJavaPackageSafe(a.serviceName)}`
+      },
+      { type: "input", name: "connectorName", message: "Connector name (kebab or word), e.g. stripe, salesforce:", validate: validateJavaIdentifier }
+    ],
+    actions: function (answers) {
+      const rootDir = path.resolve(process.cwd(), answers.rootDir);
+      const svcDir = path.join(rootDir, "services", answers.serviceName);
+      return [
+        async () => {
+          if (!(await fs.pathExists(path.join(svcDir, "pom.xml")))) throw new Error(`Service not found: ${svcDir}`);
+          return "OK";
+        },
+        {
+          type: "add",
+          path: path.join(svcDir, "src/main/java/{{javaPackagePath basePackage}}/application/connectors/{{pascal connectorName}}Connector.java"),
+          templateFile: template("golden", "ConnectorPort.java.hbs")
+        },
+        {
+          type: "add",
+          path: path.join(
+            svcDir,
+            "src/main/java/{{javaPackagePath basePackage}}/infrastructure/connectors/{{pascal connectorName}}HttpConnector.java"
+          ),
+          templateFile: template("golden", "ConnectorAdapter.java.hbs")
+        },
+        {
+          type: "add",
+          path: path.join(svcDir, "src/main/java/{{javaPackagePath basePackage}}/config/{{pascal connectorName}}ConnectorConfig.java"),
+          templateFile: template("golden", "ConnectorConfig.java.hbs")
+        }
+      ];
+    }
+  });
+
+  plop.setGenerator("feature", {
+    description: "Add a feature module (use case + policy + query) inside an existing service",
+    prompts: [
+      { type: "input", name: "rootDir", message: "Repo root directory:", default: "../..", validate: validateRootPath },
+      { type: "input", name: "serviceName", message: "Existing service name under services/:", validate: validateArtifactId },
+      {
+        type: "input",
+        name: "groupId",
+        message: "Maven groupId:",
+        default: (a) => {
+          const rootDir = path.resolve(process.cwd(), a.rootDir || ".");
+          const cfg = readRepoConfigSync(rootDir);
+          return cfg.groupId || "com.yourorg";
+        }
+      },
+      {
+        type: "input",
+        name: "basePackage",
+        message: "Base Java package for the service:",
+        validate: validateJavaPackage,
+        default: (a) => `${a.groupId}.${toJavaPackageSafe(a.serviceName)}`
+      },
+      { type: "input", name: "featureName", message: "Feature name (kebab or word), e.g. billing, onboarding:", validate: validateJavaIdentifier }
+    ],
+    actions: function (answers) {
+      const rootDir = path.resolve(process.cwd(), answers.rootDir);
+      const svcDir = path.join(rootDir, "services", answers.serviceName);
+      return [
+        async () => {
+          if (!(await fs.pathExists(path.join(svcDir, "pom.xml")))) throw new Error(`Service not found: ${svcDir}`);
+          return "OK";
+        },
+        {
+          type: "add",
+          path: path.join(
+            svcDir,
+            "src/main/java/{{javaPackagePath basePackage}}/application/features/{{pascal featureName}}/Create{{pascal featureName}}UseCase.java"
+          ),
+          templateFile: template("golden", "CreateUseCase.java.hbs")
+        },
+        {
+          type: "add",
+          path: path.join(
+            svcDir,
+            "src/main/java/{{javaPackagePath basePackage}}/application/features/{{pascal featureName}}/Get{{pascal featureName}}Query.java"
+          ),
+          templateFile: template("golden", "GetQuery.java.hbs")
+        },
+        {
+          type: "add",
+          path: path.join(
+            svcDir,
+            "src/main/java/{{javaPackagePath basePackage}}/domain/policies/Apply{{pascal featureName}}Policy.java"
+          ),
+          templateFile: template("golden", "ApplyPolicy.java.hbs")
+        }
+      ];
+    }
+  });
+
+  plop.setGenerator("endpoint", {
+    description: "Add a new screen endpoint (resource + DTO + use case) inside an existing service",
+    prompts: [
+      { type: "input", name: "rootDir", message: "Repo root directory:", default: "../..", validate: validateRootPath },
+      { type: "input", name: "serviceName", message: "Existing service name under services/:", validate: validateArtifactId },
+      {
+        type: "input",
+        name: "groupId",
+        message: "Maven groupId:",
+        default: (a) => {
+          const rootDir = path.resolve(process.cwd(), a.rootDir || ".");
+          const cfg = readRepoConfigSync(rootDir);
+          return cfg.groupId || "com.yourorg";
+        }
+      },
+      {
+        type: "input",
+        name: "basePackage",
+        message: "Base Java package for the service:",
+        validate: validateJavaPackage,
+        default: (a) => `${a.groupId}.${toJavaPackageSafe(a.serviceName)}`
+      },
+      { type: "input", name: "endpointName", message: "Endpoint name (kebab or word), e.g. profile, tenant-settings:", validate: validateJavaIdentifier }
+    ],
+    actions: function (answers) {
+      const rootDir = path.resolve(process.cwd(), answers.rootDir);
+      const svcDir = path.join(rootDir, "services", answers.serviceName);
+      return [
+        async () => {
+          if (!(await fs.pathExists(path.join(svcDir, "pom.xml")))) throw new Error(`Service not found: ${svcDir}`);
+          return "OK";
+        },
+        {
+          type: "add",
+          path: path.join(svcDir, "src/main/java/{{javaPackagePath basePackage}}/api/{{pascal endpointName}}Resource.java"),
+          templateFile: template("golden", "EndpointResource.java.hbs")
+        },
+        {
+          type: "add",
+          path: path.join(svcDir, "src/main/java/{{javaPackagePath basePackage}}/api/dto/{{pascal endpointName}}Response.java"),
+          templateFile: template("golden", "EndpointResponse.java.hbs")
+        },
+        {
+          type: "add",
+          path: path.join(
+            svcDir,
+            "src/main/java/{{javaPackagePath basePackage}}/application/usecases/Get{{pascal endpointName}}UseCase.java"
+          ),
+          templateFile: template("golden", "EndpointUseCase.java.hbs")
+        }
+      ];
+    }
+  });
+
+  plop.setGenerator("projection", {
+    description: "Add a data projection skeleton (domain + repository + adapter) inside an existing service",
+    prompts: [
+      { type: "input", name: "rootDir", message: "Repo root directory:", default: "../..", validate: validateRootPath },
+      { type: "input", name: "serviceName", message: "Existing service name under services/:", validate: validateArtifactId },
+      {
+        type: "input",
+        name: "groupId",
+        message: "Maven groupId:",
+        default: (a) => {
+          const rootDir = path.resolve(process.cwd(), a.rootDir || ".");
+          const cfg = readRepoConfigSync(rootDir);
+          return cfg.groupId || "com.yourorg";
+        }
+      },
+      {
+        type: "input",
+        name: "basePackage",
+        message: "Base Java package for the service:",
+        validate: validateJavaPackage,
+        default: (a) => `${a.groupId}.${toJavaPackageSafe(a.serviceName)}`
+      },
+      { type: "input", name: "projectionName", message: "Projection name (kebab or word), e.g. customer, usage:", validate: validateJavaIdentifier }
+    ],
+    actions: function (answers) {
+      const rootDir = path.resolve(process.cwd(), answers.rootDir);
+      const svcDir = path.join(rootDir, "services", answers.serviceName);
+      return [
+        async () => {
+          if (!(await fs.pathExists(path.join(svcDir, "pom.xml")))) throw new Error(`Service not found: ${svcDir}`);
+          return "OK";
+        },
+        {
+          type: "add",
+          path: path.join(svcDir, "src/main/java/{{javaPackagePath basePackage}}/domain/projections/{{pascal projectionName}}Projection.java"),
+          templateFile: template("golden", "Projection.java.hbs")
+        },
+        {
+          type: "add",
+          path: path.join(
+            svcDir,
+            "src/main/java/{{javaPackagePath basePackage}}/domain/projections/{{pascal projectionName}}ProjectionRepository.java"
+          ),
+          templateFile: template("golden", "ProjectionRepository.java.hbs")
+        },
+        {
+          type: "add",
+          path: path.join(
+            svcDir,
+            "src/main/java/{{javaPackagePath basePackage}}/infrastructure/projections/InMemory{{pascal projectionName}}ProjectionRepository.java"
+          ),
+          templateFile: template("golden", "ProjectionAdapter.java.hbs")
         }
       ];
     }

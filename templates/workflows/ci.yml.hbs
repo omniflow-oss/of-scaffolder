@@ -86,7 +86,7 @@ jobs:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
           cache: maven
-      - run: mvn $MVN_ARGS clean verify
+      - run: mvn $MVN_ARGS -Pquality clean verify
 
   native:
     runs-on: ubuntu-latest

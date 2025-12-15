@@ -1,10 +1,13 @@
 package {{basePackage}}.api.error;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.Instant;
+import java.util.Map;
 
 public record ErrorResponse(
     @JsonProperty("error_code") String errorCode,
     @JsonProperty("message") String message,
-    @JsonProperty("correlation_id") String correlationId
+    @JsonProperty("details") Map<String, Object> details,
+    @JsonProperty("correlation_id") String correlationId,
+    @JsonProperty("timestamp") Instant timestamp
 ) {}
-

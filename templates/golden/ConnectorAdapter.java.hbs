@@ -1,0 +1,18 @@
+package {{basePackage}}.infrastructure.connectors;
+
+import {{basePackage}}.application.connectors.{{pascal connectorName}}Connector;
+import java.time.Duration;
+
+public final class {{pascal connectorName}}HttpConnector implements {{pascal connectorName}}Connector {
+
+  @Override
+  public String connectorId() {
+    return "{{kebab connectorName}}";
+  }
+
+  @Override
+  public Duration defaultTimeout() {
+    return Duration.ofSeconds(5);
+  }
+}
+
