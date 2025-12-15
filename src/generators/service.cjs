@@ -88,6 +88,9 @@ const registerServiceGenerator = ({ plop, ctx, validators, utils }) => {
           if (!Array.isArray(answers.internalLibs) && answers.autowireInternalLibs !== false) {
             answers.internalLibs = ctx.defaultServiceFlags(rootDir).internalLibs;
           }
+          if (!Array.isArray(answers.quarkusExtensions)) {
+            answers.quarkusExtensions = ctx.defaultServiceFlags(rootDir).quarkusExtensions;
+          }
 
           const coords = await utils.readPomCoordinates(rootPomPath);
           if (!answers.groupId) answers.groupId = coords.groupId;
@@ -164,4 +167,3 @@ const registerServiceGenerator = ({ plop, ctx, validators, utils }) => {
 };
 
 module.exports = { registerServiceGenerator };
-

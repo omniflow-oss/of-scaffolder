@@ -18,7 +18,13 @@
     "service": {
       "addWorkflows": false,
       "registerInRootPom": true,
-      "internalLibs": ["shared-kernel"]
+      "internalLibs": [],
+      "quarkusExtensions": [
+        "quarkus-rest",
+        "quarkus-rest-jackson",
+        "quarkus-hibernate-validator",
+        "quarkus-smallrye-health"
+      ]
     },
     "lib": {
       "registerInRootPom": true,

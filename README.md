@@ -169,6 +169,12 @@ If `.platform-scaffolder.json` exists, the `service` generator defaults internal
 
 You can also choose interactively (it will suggest libs discovered under `libs/*/pom.xml`).
 
+### Quarkus extensions (config-driven)
+
+Generated service POMs are driven by `.platform-scaffolder.json`:
+
+- `.platform-scaffolder.json` → `defaults.service.quarkusExtensions` controls which `io.quarkus:*` dependencies are added.
+
 ## Idempotent edits
 
 The `platform` generator seeds markers that make subsequent module/dependency insertion stable and idempotent:

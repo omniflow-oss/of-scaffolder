@@ -45,7 +45,8 @@ const createContext = ({ plopfileDir }) => {
     return {
       addWorkflows: cfg?.defaults?.service?.addWorkflows ?? false,
       registerInRootPom: cfg?.defaults?.service?.registerInRootPom ?? true,
-      internalLibs: Array.isArray(cfg?.defaults?.service?.internalLibs) ? cfg.defaults.service.internalLibs : []
+      internalLibs: Array.isArray(cfg?.defaults?.service?.internalLibs) ? cfg.defaults.service.internalLibs : [],
+      quarkusExtensions: Array.isArray(cfg?.defaults?.service?.quarkusExtensions) ? cfg.defaults.service.quarkusExtensions : []
     };
   };
 
@@ -68,4 +69,3 @@ const createContext = ({ plopfileDir }) => {
 };
 
 module.exports = { createContext };
-

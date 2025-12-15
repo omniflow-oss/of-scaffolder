@@ -51,7 +51,12 @@ const createFakeRepo = async () => {
     groupId: "com.acme",
     platformArtifactId: "platform",
     platformVersion: "1.0.0-SNAPSHOT",
-    defaults: { service: { internalLibs: ["shared-kernel"] } }
+    defaults: {
+      service: {
+        internalLibs: ["shared-kernel"],
+        quarkusExtensions: ["quarkus-rest", "quarkus-rest-jackson", "quarkus-hibernate-validator", "quarkus-smallrye-health"]
+      }
+    }
   });
   return dir;
 };
