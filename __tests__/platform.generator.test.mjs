@@ -20,6 +20,13 @@ test("platform generator bootstraps root + bom + platform-starter", async () => 
     platformVersion: "1.0.0-SNAPSHOT",
     javaVersion: "21",
     quarkusPlatformVersion: "3.19.1",
+    mandrelBuilderImage: "quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java21",
+    enforcerVersion: "3.5.0",
+    surefireVersion: "3.5.2",
+    spotlessVersion: "2.44.3",
+    checkstyleVersion: "3.6.0",
+    spotbugsVersion: "4.8.6.6",
+    archunitVersion: "1.3.0",
     addWorkflows: false
   });
 
@@ -36,6 +43,7 @@ test("platform generator bootstraps root + bom + platform-starter", async () => 
   expect(rootPom).toContain("<module>bom</module>");
   expect(rootPom).toContain("<module>platform-starter</module>");
   expect(rootPom).toContain("<quarkus.platform.version>3.19.1</quarkus.platform.version>");
+  expect(rootPom).toContain("<archunit.version>1.3.0</archunit.version>");
 
   const bomPom = await fs.readFile(path.join(repoRoot, "bom", "pom.xml"), "utf8");
   expect(bomPom).toContain("<relativePath>../pom.xml</relativePath>");

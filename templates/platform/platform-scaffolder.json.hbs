@@ -3,8 +3,17 @@
   "groupId": "{{groupId}}",
   "platformArtifactId": "{{platformArtifactId}}",
   "platformVersion": "{{platformVersion}}",
-  "javaVersion": "{{javaVersion}}",
-  "quarkusPlatformVersion": "{{quarkusPlatformVersion}}",
+  "versions": {
+    "java": "{{javaVersion}}",
+    "quarkusPlatform": "{{quarkusPlatformVersion}}",
+    "mandrelBuilderImage": "{{mandrelBuilderImage}}",
+    "enforcerPlugin": "{{enforcerVersion}}",
+    "surefirePlugin": "{{surefireVersion}}",
+    "spotlessPlugin": "{{spotlessVersion}}",
+    "checkstylePlugin": "{{checkstyleVersion}}",
+    "spotbugsPlugin": "{{spotbugsVersion}}",
+    "archunit": "{{archunitVersion}}"
+  },
   "defaults": {
     "service": {
       "addWorkflows": false,

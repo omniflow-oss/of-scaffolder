@@ -22,10 +22,17 @@
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.version>{{quarkusPlatformVersion}}</quarkus.platform.version>
 
+    <enforcer.plugin.version>{{enforcerVersion}}</enforcer.plugin.version>
+    <surefire.plugin.version>{{surefireVersion}}</surefire.plugin.version>
+    <spotless.plugin.version>{{spotlessVersion}}</spotless.plugin.version>
+    <checkstyle.plugin.version>{{checkstyleVersion}}</checkstyle.plugin.version>
+    <spotbugs.plugin.version>{{spotbugsVersion}}</spotbugs.plugin.version>
+    <archunit.version>{{archunitVersion}}</archunit.version>
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <quarkus.native.container-build>true</quarkus.native.container-build>
-    <quarkus.native.builder-image>quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java21</quarkus.native.builder-image>
+    <quarkus.native.builder-image>{{mandrelBuilderImage}}</quarkus.native.builder-image>
 
     <checkstyle.skip>true</checkstyle.skip>
     <spotless.skip>true</spotless.skip>

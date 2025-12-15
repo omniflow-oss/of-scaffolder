@@ -98,6 +98,48 @@ module.exports = function (plop) {
         default: "3.19.1"
       },
       {
+        type: "input",
+        name: "mandrelBuilderImage",
+        message: "Mandrel builder image (Quarkus native container build):",
+        default: (a) => `quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java${a.javaVersion || "21"}`
+      },
+      {
+        type: "input",
+        name: "enforcerVersion",
+        message: "maven-enforcer-plugin version:",
+        default: "3.5.0"
+      },
+      {
+        type: "input",
+        name: "surefireVersion",
+        message: "maven-surefire-plugin version:",
+        default: "3.5.2"
+      },
+      {
+        type: "input",
+        name: "spotlessVersion",
+        message: "spotless-maven-plugin version:",
+        default: "2.44.3"
+      },
+      {
+        type: "input",
+        name: "checkstyleVersion",
+        message: "maven-checkstyle-plugin version:",
+        default: "3.6.0"
+      },
+      {
+        type: "input",
+        name: "spotbugsVersion",
+        message: "spotbugs-maven-plugin version:",
+        default: "4.8.6.6"
+      },
+      {
+        type: "input",
+        name: "archunitVersion",
+        message: "archunit-junit5 version:",
+        default: "1.3.0"
+      },
+      {
         type: "confirm",
         name: "addWorkflows",
         message: "Add GitHub Actions workflows (.github/workflows/ci.yml + publish-ghcr.yml)?",
@@ -112,6 +154,15 @@ module.exports = function (plop) {
         async () => {
           await ensureDir(rootDir);
           if (await fs.pathExists(path.join(rootDir, "pom.xml"))) throw new Error(`pom.xml already exists: ${rootDir}`);
+
+          answers.enforcerVersion ||= "3.5.0";
+          answers.surefireVersion ||= "3.5.2";
+          answers.spotlessVersion ||= "2.44.3";
+          answers.checkstyleVersion ||= "3.6.0";
+          answers.spotbugsVersion ||= "4.8.6.6";
+          answers.archunitVersion ||= "1.3.0";
+          answers.mandrelBuilderImage ||= `quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java${answers.javaVersion || "21"}`;
+
           return "OK";
         },
         { type: "add", path: path.join(rootDir, "pom.xml"), templateFile: template("platform", "root.pom.xml.hbs") },
