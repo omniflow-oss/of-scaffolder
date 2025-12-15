@@ -1,0 +1,33 @@
+package {{basePackage}}.api.error;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
+import java.util.Optional;
+
+@Provider
+@ApplicationScoped
+public class GlobalExceptionMapper implements ExceptionMapper<Exception> {
+
+  @Context
+  HttpHeaders headers;
+
+  @Override
+  public Response toResponse(Exception exception) {
+    final String correlationId = Optional.ofNullable(headers)
+        .map(h -> h.getHeaderString("x-correlation-id"))
+        .orElse("n/a");
+
+    final var body = new ErrorResponse(
+        ErrorCode.INTERNAL_ERROR.name(),
+        "Unexpected error",
+        correlationId
+    );
+
+    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(body).build();
+  }
+}
+

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "groupId": "{{groupId}}",
+  "platformArtifactId": "{{platformArtifactId}}",
+  "platformVersion": "{{platformVersion}}",
+  "javaVersion": "{{javaVersion}}",
+  "quarkusPlatformVersion": "{{quarkusPlatformVersion}}",
+  "defaults": {
+    "service": {
+      "addWorkflows": false,
+      "registerInRootPom": true,
+      "internalLibs": ["shared-kernel"]
+    },
+    "lib": {
+      "registerInRootPom": true,
+      "registerInBom": true
+    }
+  }
+}

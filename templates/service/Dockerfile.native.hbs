@@ -1,0 +1,11 @@
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5
+
+WORKDIR /work
+RUN microdnf install -y tzdata && microdnf clean all
+
+COPY target/*-runner /work/application
+
+EXPOSE 8080
+USER 1001
+ENTRYPOINT ["/work/application","-Dquarkus.http.host=0.0.0.0"]
+

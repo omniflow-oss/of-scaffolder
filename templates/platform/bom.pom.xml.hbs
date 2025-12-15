@@ -1,0 +1,27 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>{{groupId}}</groupId>
+    <artifactId>{{platformArtifactId}}</artifactId>
+    <version>{{platformVersion}}</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>platform-bom</artifactId>
+  <packaging>pom</packaging>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>${quarkus.platform.group-id}</groupId>
+        <artifactId>${quarkus.platform.artifact-id}</artifactId>
+        <version>${quarkus.platform.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- scaffolder:deps:start -->
+      <!-- scaffolder:deps:end -->
+    </dependencies>
+  </dependencyManagement>
+</project>

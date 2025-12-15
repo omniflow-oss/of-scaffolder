@@ -1,0 +1,35 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>{{groupId}}</groupId>
+  <artifactId>{{platformArtifactId}}</artifactId>
+  <version>{{platformVersion}}</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>bom</module>
+    <module>platform-starter</module>
+    <!-- scaffolder:modules:start -->
+    <!-- scaffolder:modules:end -->
+  </modules>
+
+  <properties>
+    <java.version>{{javaVersion}}</java.version>
+    <maven.compiler.release>${java.version}</maven.compiler.release>
+
+    <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+    <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+    <quarkus.platform.version>{{quarkusPlatformVersion}}</quarkus.platform.version>
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <quarkus.native.container-build>true</quarkus.native.container-build>
+    <quarkus.native.builder-image>quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java21</quarkus.native.builder-image>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+    </dependencies>
+  </dependencyManagement>
+</project>
