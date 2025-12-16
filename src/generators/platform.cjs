@@ -14,8 +14,8 @@ const registerPlatformGenerator = ({ plop, ctx, validators }) => {
         default: ".",
         validate: validators.validateNewRootPath
       },
-      { type: "input", name: "groupId", message: "Maven groupId:", default: "com.yourorg" },
-      { type: "input", name: "platformArtifactId", message: "Root artifactId (aggregator parent):", default: "platform" },
+      { type: "input", name: "groupId", message: "Maven groupId:", default: d.groupId || "" },
+      { type: "input", name: "platformArtifactId", message: "Root artifactId (aggregator parent):", default: d.platformArtifactId },
       { type: "input", name: "platformVersion", message: "Platform version:", default: d.platformVersion },
       { type: "input", name: "javaVersion", message: "Java version:", default: d.javaVersion },
       { type: "input", name: "mavenMinVersion", message: "Minimum Maven version:", default: d.mavenMinVersion },

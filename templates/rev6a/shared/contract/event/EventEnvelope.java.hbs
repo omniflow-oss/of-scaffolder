@@ -1,0 +1,8 @@
+package {{rootPackage}}.shared.contract.event;
+
+public record EventEnvelope(
+    String type,
+    EventMetadata metadata,
+    Object payload
+) {}
+

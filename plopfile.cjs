@@ -9,6 +9,9 @@ const { registerServiceGenerator } = require("./src/generators/service.cjs");
 const { registerLibGenerator } = require("./src/generators/lib.cjs");
 const { registerGoldenGenerators } = require("./src/generators/golden.cjs");
 const { registerEventBusGenerator } = require("./src/generators/eventbus.cjs");
+const { registerService6aGenerator } = require("./src/generators/service6a.cjs");
+const { registerUseCase6aGenerator } = require("./src/generators/usecase6a.cjs");
+const { registerEventBus6aGenerator } = require("./src/generators/eventbus6a.cjs");
 
 module.exports = function (plop) {
   plop.setWelcomeMessage("Platform scaffolder (Quarkus/Maven/Graal native/GitHub Actions)");
@@ -27,4 +30,7 @@ module.exports = function (plop) {
   registerLibGenerator(deps);
   registerGoldenGenerators(deps);
   registerEventBusGenerator(deps);
+  registerService6aGenerator(deps);
+  registerUseCase6aGenerator(deps);
+  registerEventBus6aGenerator(deps);
 };

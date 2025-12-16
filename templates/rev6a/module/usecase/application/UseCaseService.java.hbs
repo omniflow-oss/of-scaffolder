@@ -1,0 +1,27 @@
+package {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.application;
+
+import {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.api.request.{{usecasePascal}}Request;
+import {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.api.response.{{usecasePascal}}Response;
+import {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.domain.error.{{usecasePascal}}ErrorFactory;
+import {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.domain.port.{{usecasePascal}}RepositoryPort;
+import {{rootPackage}}.shared.contract.result.Failure;
+import {{rootPackage}}.shared.contract.result.Result;
+import {{rootPackage}}.shared.contract.result.Success;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+@ApplicationScoped
+public class {{usecasePascal}}Service {
+
+  @Inject
+  {{usecasePascal}}RepositoryPort repo;
+
+  public Result<{{usecasePascal}}Response> execute({{usecasePascal}}Request request) {
+    if (request == null) {
+      return new Failure<>({{usecasePascal}}ErrorFactory.validation("request"));
+    }
+    repo.touch();
+    return new Success<>(new {{usecasePascal}}Response("ok"));
+  }
+}
+

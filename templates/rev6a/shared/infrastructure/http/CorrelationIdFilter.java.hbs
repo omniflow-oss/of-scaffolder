@@ -1,0 +1,29 @@
+package {{rootPackage}}.shared.infrastructure.http;
+
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.container.ContainerResponseContext;
+import jakarta.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.ext.Provider;
+import java.io.IOException;
+import java.util.Optional;
+import org.jboss.logging.MDC;
+
+@Provider
+public class CorrelationIdFilter implements ContainerRequestFilter, ContainerResponseFilter {
+
+  @Override
+  public void filter(ContainerRequestContext requestContext) throws IOException {
+    final String correlationId = Optional.ofNullable(requestContext.getHeaderString("x-correlation-id")).orElse("n/a");
+    final String tenantId = Optional.ofNullable(requestContext.getHeaderString("x-tenant-id")).orElse("n/a");
+    MDC.put("correlation_id", correlationId);
+    MDC.put("tenant_id", tenantId);
+  }
+
+  @Override
+  public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
+    responseContext.getHeaders().putSingle("x-correlation-id", MDC.get("correlation_id"));
+    MDC.clear();
+  }
+}
+

@@ -17,7 +17,7 @@ const groupIdPrompt = ({ ctx }) => ({
   message: "Maven groupId:",
   default: (a) => {
     const rootDir = path.resolve(process.cwd(), a.rootDir || ".");
-    return ctx.defaultGroupId(rootDir);
+    return ctx.defaultGroupId(rootDir) || "";
   }
 });
 
@@ -30,4 +30,3 @@ const basePackagePromptFor = ({ validateJavaPackage, nameKey }) => ({
 });
 
 module.exports = { baseRepoPrompts, groupIdPrompt, basePackagePromptFor };
-

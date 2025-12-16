@@ -2,10 +2,7 @@ const path = require("path");
 const fs = require("fs-extra");
 const { baseRepoPrompts, groupIdPrompt, basePackagePromptFor } = require("../scaffolder/prompts.cjs");
 const { toJavaPackageSafe } = require("../utils.cjs");
-const { defaults } = require("../scaffolder/defaults.cjs");
-
 const registerServiceGenerator = ({ plop, ctx, validators, utils }) => {
-  const d = defaults();
   plop.setGenerator("service", {
     description: "Create a new Quarkus service under services/<name>",
     prompts: [
@@ -97,13 +94,18 @@ const registerServiceGenerator = ({ plop, ctx, validators, utils }) => {
             answers.testDependencies = ctx.defaultServiceFlags(rootDir).testDependencies;
           }
           if (!answers.dockerBaseImage) {
-            answers.dockerBaseImage = ctx.defaultServiceFlags(rootDir).dockerBaseImage || d.dockerBaseImage;
+            answers.dockerBaseImage = ctx.defaultServiceFlags(rootDir).dockerBaseImage;
+          }
+          if (!answers.dockerBaseImage) {
+            throw new Error(`Missing dockerBaseImage; set defaults.service.dockerBaseImage in ${path.join(rootDir, ".platform-scaffolder.json")}`);
           }
 
           const coords = await utils.readPomCoordinates(rootPomPath);
           if (!answers.groupId) answers.groupId = coords.groupId;
-          answers.platformVersion = coords.version || answers.platformVersion || "1.0.0-SNAPSHOT";
-          answers.platformArtifactId = coords.artifactId || answers.platformArtifactId || "platform";
+          answers.platformVersion = coords.version || answers.platformVersion;
+          answers.platformArtifactId = coords.artifactId || answers.platformArtifactId;
+          if (!answers.platformVersion) throw new Error(`Could not determine platform version from: ${rootPomPath}`);
+          if (!answers.platformArtifactId) throw new Error(`Could not determine platform artifactId from: ${rootPomPath}`);
 
           return "OK";
         },

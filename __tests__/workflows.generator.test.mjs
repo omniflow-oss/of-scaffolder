@@ -26,6 +26,13 @@ const createFakeRepo = async () => {
   );
   await fs.ensureDir(path.join(dir, "services"));
   await fs.ensureDir(path.join(dir, "libs"));
+  await fs.writeJson(path.join(dir, ".platform-scaffolder.json"), {
+    schemaVersion: 1,
+    groupId: "com.acme",
+    platformArtifactId: "platform",
+    platformVersion: "1.0.0-SNAPSHOT",
+    defaults: { service: { dockerBaseImage: "registry.access.redhat.com/ubi9/ubi-minimal:9.5" } }
+  });
   return dir;
 };
 

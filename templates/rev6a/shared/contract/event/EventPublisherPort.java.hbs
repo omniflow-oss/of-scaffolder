@@ -1,0 +1,8 @@
+package {{rootPackage}}.shared.contract.event;
+
+import io.smallrye.mutiny.Uni;
+
+public interface EventPublisherPort {
+  Uni<Void> publish(EventEnvelope envelope);
+}
+

@@ -1,0 +1,24 @@
+package {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.domain.error;
+
+import {{rootPackage}}.shared.contract.error.Error;
+import {{rootPackage}}.shared.contract.error.ErrorCategory;
+import {{rootPackage}}.shared.contract.error.ErrorDetails;
+import java.time.Instant;
+import java.util.List;
+import org.jboss.logging.MDC;
+
+public final class {{usecasePascal}}ErrorFactory {
+  private {{usecasePascal}}ErrorFactory() {}
+
+  public static Error validation(String field) {
+    final String correlationId = String.valueOf(MDC.get("correlation_id"));
+    return new Error(
+        ErrorCategory.VALIDATION,
+        {{usecasePascal}}ErrorCodes.VALIDATION_ERROR.name(),
+        "Invalid request",
+        List.of(new ErrorDetails("VALIDATION", field, "Invalid request", null)),
+        correlationId == null ? "n/a" : correlationId,
+        Instant.now()
+    );
+  }
+}

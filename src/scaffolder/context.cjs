@@ -35,9 +35,9 @@ const createContext = ({ plopfileDir }) => {
     return Array.from(seen).filter(Boolean).sort();
   };
 
-  const defaultGroupId = (rootDir, fallback = "com.yourorg") => {
+  const defaultGroupId = (rootDir) => {
     const cfg = readRepoConfigSync(rootDir);
-    return cfg.groupId || fallback;
+    return cfg.groupId;
   };
 
   const defaultServiceFlags = (rootDir) => {
@@ -56,7 +56,8 @@ const createContext = ({ plopfileDir }) => {
     const cfg = readRepoConfigSync(rootDir);
     return {
       registerInRootPom: cfg?.defaults?.lib?.registerInRootPom ?? true,
-      registerInBom: cfg?.defaults?.lib?.registerInBom ?? true
+      registerInBom: cfg?.defaults?.lib?.registerInBom ?? true,
+      testDependencies: Array.isArray(cfg?.defaults?.lib?.testDependencies) ? cfg.defaults.lib.testDependencies : []
     };
   };
 

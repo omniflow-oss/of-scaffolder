@@ -44,7 +44,17 @@ const createFakeRepo = async () => {
   );
   await fs.ensureDir(path.join(dir, "services"));
   await fs.ensureDir(path.join(dir, "libs"));
-  await fs.writeJson(path.join(dir, ".platform-scaffolder.json"), { schemaVersion: 1, groupId: "com.acme", platformArtifactId: "platform", platformVersion: "1.0.0-SNAPSHOT" });
+  await fs.writeJson(path.join(dir, ".platform-scaffolder.json"), {
+    schemaVersion: 1,
+    groupId: "com.acme",
+    platformArtifactId: "platform",
+    platformVersion: "1.0.0-SNAPSHOT",
+    defaults: {
+      lib: {
+        testDependencies: [{ groupId: "org.junit.jupiter", artifactId: "junit-jupiter", scope: "test" }]
+      }
+    }
+  });
   return dir;
 };
 

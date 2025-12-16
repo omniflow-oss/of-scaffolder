@@ -1,0 +1,8 @@
+package {{rootPackage}}.shared.contract.event;
+
+import io.smallrye.mutiny.Multi;
+
+public interface EventSubscriberPort {
+  Multi<EventEnvelope> subscribe(String channel);
+}
+

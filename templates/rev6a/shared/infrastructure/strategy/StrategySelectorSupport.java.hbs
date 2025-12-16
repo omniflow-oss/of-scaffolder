@@ -1,0 +1,24 @@
+package {{rootPackage}}.shared.infrastructure.strategy;
+
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.util.TypeLiteral;
+import jakarta.inject.Singleton;
+
+@Singleton
+public class StrategySelectorSupport {
+
+  public <T> T select(Instance<T> candidates, Class<T> type, String name) {
+    if (name == null || name.isBlank()) throw new StrategyNotFoundError(type, "<blank>");
+    final Instance<T> selected = candidates.select(NamedStrategy.Literal.of(name));
+    if (selected.isUnsatisfied()) throw new StrategyNotFoundError(type, name);
+    return selected.get();
+  }
+
+  public <T> T select(Instance<T> candidates, TypeLiteral<T> type, String name) {
+    if (name == null || name.isBlank()) throw new StrategyNotFoundError(type.getRawType(), "<blank>");
+    final Instance<T> selected = candidates.select(NamedStrategy.Literal.of(name));
+    if (selected.isUnsatisfied()) throw new StrategyNotFoundError(type.getRawType(), name);
+    return selected.get();
+  }
+}
+

@@ -1,0 +1,27 @@
+package {{rootPackage}}.shared.infrastructure.http;
+
+import {{rootPackage}}.shared.contract.error.Error;
+import {{rootPackage}}.shared.contract.error.ErrorCategory;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
+import java.time.Instant;
+import java.util.List;
+import org.jboss.logging.MDC;
+
+@Provider
+public class GlobalThrowableRenderer implements ExceptionMapper<Throwable> {
+  @Override
+  public Response toResponse(Throwable exception) {
+    final String correlationId = String.valueOf(MDC.get("correlation_id"));
+    final var body = new Error(
+        ErrorCategory.INTERNAL,
+        "INTERNAL_ERROR",
+        "Unexpected error",
+        List.of(),
+        correlationId == null ? "n/a" : correlationId,
+        Instant.now()
+    );
+    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(body).build();
+  }
+}

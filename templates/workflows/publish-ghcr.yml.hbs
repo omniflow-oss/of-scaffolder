@@ -17,7 +17,7 @@ env:
   JAVA_VERSION: ${{ vars.JAVA_VERSION }}
   MANDREL_BUILDER_IMAGE: ${{ vars.MANDREL_BUILDER_IMAGE }}
   MVN_ARGS: "-B -ntp -Dstyle.color=always"
-  REGISTRY: ghcr.io
+  REGISTRY: ${{ vars.IMAGE_REGISTRY }}
 
 jobs:
   discover:

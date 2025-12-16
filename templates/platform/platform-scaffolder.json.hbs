@@ -37,7 +37,10 @@
     },
     "lib": {
       "registerInRootPom": true,
-      "registerInBom": true
+      "registerInBom": true,
+      "testDependencies": [
+        { "groupId": "org.junit.jupiter", "artifactId": "junit-jupiter", "scope": "test" }
+      ]
     }
   }
 }

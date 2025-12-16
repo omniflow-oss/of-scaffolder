@@ -1,0 +1,10 @@
+package {{rootPackage}}.shared.contract.error;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record ErrorDetails(
+    @JsonProperty("type") String type,
+    @JsonProperty("field") String field,
+    @JsonProperty("message") String message,
+    @JsonProperty("rejected_value") String rejectedValue
+) {}

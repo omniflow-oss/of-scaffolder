@@ -49,11 +49,16 @@ const registerLibGenerator = ({ plop, ctx, validators, utils }) => {
           if (!answers.groupId) answers.groupId = cfg.groupId;
           if (!answers.platformArtifactId) answers.platformArtifactId = cfg.platformArtifactId;
           if (!answers.platformVersion) answers.platformVersion = cfg.platformVersion;
+          if (!Array.isArray(answers.testDependencies)) {
+            answers.testDependencies = ctx.defaultLibFlags(rootDir).testDependencies;
+          }
 
           const coords = await utils.readPomCoordinates(rootPomPath);
           if (!answers.groupId) answers.groupId = coords.groupId;
-          answers.platformVersion = coords.version || answers.platformVersion || "1.0.0-SNAPSHOT";
-          answers.platformArtifactId = coords.artifactId || answers.platformArtifactId || "platform";
+          answers.platformVersion = coords.version || answers.platformVersion;
+          answers.platformArtifactId = coords.artifactId || answers.platformArtifactId;
+          if (!answers.platformVersion) throw new Error(`Could not determine platform version from: ${rootPomPath}`);
+          if (!answers.platformArtifactId) throw new Error(`Could not determine platform artifactId from: ${rootPomPath}`);
           return "OK";
         },
         { type: "add", path: path.join(libDir, "pom.xml"), templateFile: ctx.template("lib", "pom.xml.hbs") },
@@ -87,4 +92,3 @@ const registerLibGenerator = ({ plop, ctx, validators, utils }) => {
 };
 
 module.exports = { registerLibGenerator };
-

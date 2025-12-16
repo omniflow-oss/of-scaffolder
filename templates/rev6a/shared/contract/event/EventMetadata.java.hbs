@@ -1,0 +1,11 @@
+package {{rootPackage}}.shared.contract.event;
+
+import java.time.Instant;
+
+public record EventMetadata(
+    String tenantId,
+    String correlationId,
+    String version,
+    Instant occurredAt
+) {}
+

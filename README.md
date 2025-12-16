@@ -6,8 +6,8 @@ Plop-based scaffolder that generates:
 - A Quarkus **service module** under `services/<serviceName>`
 - A Java **library module** under `libs/<libName>`
 - Golden-path building blocks inside services: `connector`, `feature`, `endpoint`, `projection`
-- A feature-local in-memory **EventBus** skeleton: `eventbus`
-- Optional GitHub Actions workflows (CI + GHCR publish) under `.github/workflows/` (only if absent)
+- A feature-local **in-memory EventBus** skeleton: `eventbus` (no Kafka by default)
+  - Optional GitHub Actions workflows (CI + GHCR publish) under `.github/workflows/` (only if absent)
 
 It is designed for a Maven “platform” repo layout (root `pom.xml` at the repo root) and refuses to overwrite existing modules.
 
@@ -66,6 +66,9 @@ npx @ofcx/of-scaffolder feature
 npx @ofcx/of-scaffolder endpoint
 npx @ofcx/of-scaffolder projection
 npx @ofcx/of-scaffolder eventbus
+npx @ofcx/of-scaffolder service6a
+npx @ofcx/of-scaffolder usecase6a
+npx @ofcx/of-scaffolder eventbus6a
 ```
 
 ## Install
@@ -153,9 +156,9 @@ npx @ofcx/of-scaffolder eventbus
 
 Bootstraps a new repo root with:
 
-- `pom.xml` (aggregator parent + imports `platform-bom`)
-- `bom/pom.xml` (imports Quarkus platform BOM)
-- `platform-starter/pom.xml` (pluginManagement + `native` profile)
+- `pom.xml` (aggregator parent + shared properties)
+- `bom/pom.xml` (imports Quarkus platform BOM + manages internal libs)
+- `platform-starter/pom.xml` (parent for services/libs; imports `platform-bom`; pluginManagement + `native` + `quality`)
 - `.platform-scaffolder.json` (defaults consumed by `service`/`lib` generators)
 - `services/` and `libs/` directories
 - `.gitignore`
@@ -172,6 +175,7 @@ Generated CI workflows expect GitHub repository variables:
 
 - `JAVA_VERSION`
 - `MANDREL_BUILDER_IMAGE`
+- `IMAGE_REGISTRY` (e.g. `ghcr.io`)
 
 Publish to GHCR workflow variables (optional):
 
@@ -239,6 +243,10 @@ Generated service POMs are driven by `.platform-scaffolder.json`:
 - `.platform-scaffolder.json` → `defaults.service.quarkusExtensions` controls which `io.quarkus:*` dependencies are added.
 - `.platform-scaffolder.json` → `defaults.service.testDependencies` controls test dependencies (Quarkus test, RestAssured, ArchUnit, etc.).
 
+Generated lib POMs are driven by `.platform-scaffolder.json`:
+
+- `.platform-scaffolder.json` → `defaults.lib.testDependencies` controls test dependencies for libs (e.g. `org.junit.jupiter:junit-jupiter`).
+
 ## Idempotent edits
 
 The `platform` generator seeds markers that make subsequent module/dependency insertion stable and idempotent:
@@ -258,10 +266,20 @@ Generated repos include a `quality` Maven profile (in `platform-starter/pom.xml`
 
 Generated services include an ArchUnit test (`ArchitectureTest`) enforcing layer boundaries.
 
+## Rev6A generators (boot/shared/module)
+
+If you want the Rev6A “usecase-per-package” structure (boot + shared contract/infrastructure + module/<module>/<usecase>):
+
+- `service6a`: creates a service skeleton under `services/<name>` with `boot/`, `shared/`, and `module/`
+- `usecase6a`: adds a canonical usecase tree under `module/<module>/<usecase>/...`
+- `eventbus6a`: adds the shared in-memory event bus contract + adapter (no Kafka)
+
 ## Environment defaults (this repo)
 
 When running the `platform` generator, prompt defaults can be overridden via environment variables (useful in CI):
 
+- `OFCX_GROUP_ID`
+- `OFCX_PLATFORM_ARTIFACT_ID`
 - `OFCX_QUARKUS_PLATFORM_VERSION`
 - `OFCX_JAVA_VERSION`
 - `OFCX_MANDREL_BUILDER_IMAGE`

@@ -1,6 +1,8 @@
 const env = process.env;
 
 const defaults = () => ({
+  groupId: env.OFCX_GROUP_ID,
+  platformArtifactId: env.OFCX_PLATFORM_ARTIFACT_ID || "platform",
   platformVersion: env.OFCX_PLATFORM_VERSION || "1.0.0-SNAPSHOT",
   javaVersion: env.OFCX_JAVA_VERSION || "21",
   mavenMinVersion: env.OFCX_MAVEN_MIN_VERSION || "3.9.0",
@@ -23,4 +25,3 @@ const defaults = () => ({
 });
 
 module.exports = { defaults };
-

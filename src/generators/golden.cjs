@@ -13,7 +13,6 @@ const registerGoldenGenerators = ({ plop, ctx, validators }) => {
     prompts: [
       { type: "input", name: "rootDir", message: "Repo root directory:", default: "../..", validate: validators.validateRootPath },
       { type: "input", name: "serviceName", message: "Existing service name under services/:", validate: validators.validateArtifactId },
-      { type: "input", name: "groupId", message: "Maven groupId:", default: "com.yourorg" },
       { type: "input", name: "basePackage", message: "Base Java package for the service:", validate: validators.validateJavaPackage },
       { type: "input", name: "connectorName", message: "Connector name (kebab or word), e.g. stripe, salesforce:", validate: validators.validateJavaIdentifier }
     ],
@@ -58,7 +57,6 @@ const registerGoldenGenerators = ({ plop, ctx, validators }) => {
     prompts: [
       { type: "input", name: "rootDir", message: "Repo root directory:", default: "../..", validate: validators.validateRootPath },
       { type: "input", name: "serviceName", message: "Existing service name under services/:", validate: validators.validateArtifactId },
-      { type: "input", name: "groupId", message: "Maven groupId:", default: "com.yourorg" },
       { type: "input", name: "basePackage", message: "Base Java package for the service:", validate: validators.validateJavaPackage },
       { type: "input", name: "featureName", message: "Feature name (kebab or word), e.g. billing, onboarding:", validate: validators.validateJavaIdentifier }
     ],
@@ -103,7 +101,6 @@ const registerGoldenGenerators = ({ plop, ctx, validators }) => {
     prompts: [
       { type: "input", name: "rootDir", message: "Repo root directory:", default: "../..", validate: validators.validateRootPath },
       { type: "input", name: "serviceName", message: "Existing service name under services/:", validate: validators.validateArtifactId },
-      { type: "input", name: "groupId", message: "Maven groupId:", default: "com.yourorg" },
       { type: "input", name: "basePackage", message: "Base Java package for the service:", validate: validators.validateJavaPackage },
       { type: "input", name: "endpointName", message: "Endpoint name (kebab or word), e.g. profile, tenant-settings:", validate: validators.validateJavaIdentifier }
     ],
@@ -138,7 +135,6 @@ const registerGoldenGenerators = ({ plop, ctx, validators }) => {
     prompts: [
       { type: "input", name: "rootDir", message: "Repo root directory:", default: "../..", validate: validators.validateRootPath },
       { type: "input", name: "serviceName", message: "Existing service name under services/:", validate: validators.validateArtifactId },
-      { type: "input", name: "groupId", message: "Maven groupId:", default: "com.yourorg" },
       { type: "input", name: "basePackage", message: "Base Java package for the service:", validate: validators.validateJavaPackage },
       { type: "input", name: "projectionName", message: "Projection name (kebab or word), e.g. customer, usage:", validate: validators.validateJavaIdentifier }
     ],
@@ -185,4 +181,3 @@ const registerGoldenGenerators = ({ plop, ctx, validators }) => {
 };
 
 module.exports = { registerGoldenGenerators };
-

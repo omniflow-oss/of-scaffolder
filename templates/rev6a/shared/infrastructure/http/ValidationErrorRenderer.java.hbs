@@ -1,0 +1,34 @@
+package {{rootPackage}}.shared.infrastructure.http;
+
+import {{rootPackage}}.shared.contract.error.Error;
+import {{rootPackage}}.shared.contract.error.ErrorCategory;
+import {{rootPackage}}.shared.contract.error.ErrorDetails;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.validation.ConstraintViolation;
+import java.time.Instant;
+import java.util.List;
+import java.util.Set;
+
+@ApplicationScoped
+public class ValidationErrorRenderer {
+
+  public Error fromViolations(Set<? extends ConstraintViolation<?>> violations, String correlationId) {
+    final List<ErrorDetails> details = violations.stream()
+        .map(v -> new ErrorDetails(
+            "VALIDATION",
+            v.getPropertyPath() == null ? "value" : v.getPropertyPath().toString(),
+            v.getMessage(),
+            String.valueOf(v.getInvalidValue())
+        ))
+        .toList();
+
+    return new Error(
+        ErrorCategory.VALIDATION,
+        "VALIDATION_ERROR",
+        "Validation failed",
+        details,
+        correlationId == null ? "n/a" : correlationId,
+        Instant.now()
+    );
+  }
+}
