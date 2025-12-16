@@ -1,0 +1,25 @@
+package {{featureBasePackage}}.application.service;
+
+import {{featureBasePackage}}.application.port.EventBus;
+import {{featureBasePackage}}.config.{{pascal contextName}}ConfigurationKeys;
+import {{basePackage}}.shared.strategy.StrategyRegistry;
+import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+@ApplicationScoped
+public class EventBusGateway implements EventBus {
+
+  private final EventBus delegate;
+
+  @Inject
+  public EventBusGateway(StrategyRegistry registry) {
+    this.delegate = registry.get(EventBus.class, {{pascal contextName}}ConfigurationKeys.EVENT_BUS_ADAPTER);
+  }
+
+  @Override
+  public <T> Uni<Void> publish(T event) {
+    return delegate.publish(event);
+  }
+}
+

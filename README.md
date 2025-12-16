@@ -73,6 +73,7 @@ npm run plop -- connector
 npm run plop -- feature
 npm run plop -- endpoint
 npm run plop -- projection
+npm run plop -- eventbus
 ```
 
 ## Use via npx
@@ -93,6 +94,7 @@ npx @ofcx/of-scaffolder connector
 npx @ofcx/of-scaffolder feature
 npx @ofcx/of-scaffolder endpoint
 npx @ofcx/of-scaffolder projection
+npx @ofcx/of-scaffolder eventbus
 ```
 
 ## Generator: platform

@@ -1,0 +1,22 @@
+package {{featureBasePackage}}.infrastructure.adapter.event.memory;
+
+import {{featureBasePackage}}.application.port.EventBus;
+import {{basePackage}}.shared.strategy.NamedStrategy;
+import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+@ApplicationScoped
+@NamedStrategy("default")
+public class DefaultEventBusAdapter implements EventBus {
+
+  private static final Queue<Object> BUS = new ConcurrentLinkedQueue<>();
+
+  @Override
+  public <T> Uni<Void> publish(T event) {
+    BUS.add(event);
+    return Uni.createFrom().voidItem();
+  }
+}
+

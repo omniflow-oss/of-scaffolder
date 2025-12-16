@@ -131,6 +131,64 @@ const insertBomDependencyIfMissing = async ({ bomPomPath, groupId, artifactId, v
   return true;
 };
 
+const insertPomDependencyIfMissing = async ({ pomPath, groupId, artifactId, versionExpr, scope, markerStart, markerEnd }) => {
+  const xml = await fs.readFile(pomPath, "utf8");
+  const has = xml.includes(`<artifactId>${artifactId}</artifactId>`) && xml.includes(`<groupId>${groupId}</groupId>`);
+  if (has) return false;
+
+  const dep = (depIndent) => {
+    const lineIndent = depIndent + "  ";
+    const lines = [
+      `${depIndent}<dependency>`,
+      `${lineIndent}<groupId>${groupId}</groupId>`,
+      `${lineIndent}<artifactId>${artifactId}</artifactId>`
+    ];
+    if (versionExpr) lines.push(`${lineIndent}<version>${versionExpr}</version>`);
+    if (scope) lines.push(`${lineIndent}<scope>${scope}</scope>`);
+    lines.push(`${depIndent}</dependency>`, "");
+    return lines.join("\n");
+  };
+
+  const start = markerStart ? xml.indexOf(markerStart) : -1;
+  const end = markerEnd ? xml.indexOf(markerEnd) : -1;
+  if (start !== -1 && end !== -1 && end > start) {
+    const afterStart = start + markerStart.length;
+    const between = xml.slice(afterStart, end);
+    const depIndent =
+      between.match(/\n(\s*)<!--/)?.[1] ??
+      xml.slice(0, start).match(/\n(\s*)<!--/)?.[1] ??
+      "    ";
+    const insertion = `\n${dep(depIndent)}`;
+    const updated = xml.slice(0, end) + insertion + xml.slice(end);
+    await fs.writeFile(pomPath, updated);
+    return true;
+  }
+
+  const depsStart = xml.indexOf("<dependencies>");
+  const depsEnd = xml.indexOf("</dependencies>");
+  if (depsStart === -1 || depsEnd === -1 || depsEnd < depsStart) return null;
+
+  const between = xml.slice(depsStart, depsEnd);
+  const depIndent = between.match(/\n(\s*)<dependency>/)?.[1] ?? "    ";
+  const updated = xml.slice(0, depsEnd) + dep(depIndent) + xml.slice(depsEnd);
+  await fs.writeFile(pomPath, updated);
+  return true;
+};
+
+const appendPropertiesIfMissing = async ({ propertiesPath, lines, marker }) => {
+  const content = (await fs.pathExists(propertiesPath)) ? await fs.readFile(propertiesPath, "utf8") : "";
+  if (marker && content.includes(marker)) return false;
+
+  const toAppend = [
+    "",
+    marker ? `# ${marker}` : "# scaffolder",
+    ...lines.map((l) => String(l).trim()).filter(Boolean)
+  ].join("\n");
+
+  await fs.outputFile(propertiesPath, content.replace(/\s*$/, "") + toAppend + "\n");
+  return true;
+};
+
 const nowIsoDate = () => new Date().toISOString().slice(0, 10);
 
 module.exports = {
@@ -144,5 +202,7 @@ module.exports = {
   readPomCoordinates,
   insertModuleIfMissing,
   insertBomDependencyIfMissing,
+  insertPomDependencyIfMissing,
+  appendPropertiesIfMissing,
   nowIsoDate
 };

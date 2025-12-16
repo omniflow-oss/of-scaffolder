@@ -1,0 +1,8 @@
+package {{featureBasePackage}}.application.port;
+
+import io.smallrye.mutiny.Uni;
+
+public interface EventBus {
+  <T> Uni<Void> publish(T event);
+}
+

@@ -1,0 +1,9 @@
+package {{featureBasePackage}}.domain.event;
+
+import java.time.Instant;
+
+public record {{pascal contextName}}CreatedEvent(
+    String id,
+    Instant occurredAt
+) {}
+
