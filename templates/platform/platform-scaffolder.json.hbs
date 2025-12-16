@@ -18,22 +18,19 @@
     "archunit": "{{archunitVersion}}"
   },
   "defaults": {
-    "service": {
-      "addWorkflows": false,
-      "registerInRootPom": true,
-      "internalLibs": [],
-      "dockerBaseImage": "{{dockerBaseImage}}",
-      "quarkusExtensions": [
-        "quarkus-rest",
-        "quarkus-rest-jackson",
-        "quarkus-hibernate-validator",
-        "quarkus-smallrye-health"
-      ],
-      "testDependencies": [
-        { "groupId": "io.quarkus", "artifactId": "quarkus-junit5", "scope": "test" },
-        { "groupId": "io.rest-assured", "artifactId": "rest-assured", "scope": "test" },
-        { "groupId": "com.tngtech.archunit", "artifactId": "archunit-junit5", "version": "${archunit.version}", "scope": "test" }
-      ]
+    "usecase": {
+      "pom": {
+        "dependencies": [
+          { "groupId": "io.quarkus", "artifactId": "quarkus-rest" },
+          { "groupId": "io.quarkus", "artifactId": "quarkus-rest-jackson" },
+          { "groupId": "io.quarkus", "artifactId": "quarkus-hibernate-validator" },
+          { "groupId": "io.quarkus", "artifactId": "quarkus-smallrye-health" }
+        ],
+        "testDependencies": [
+          { "groupId": "org.junit.jupiter", "artifactId": "junit-jupiter", "scope": "test" },
+          { "groupId": "com.tngtech.archunit", "artifactId": "archunit-junit5", "version": "${archunit.version}", "scope": "test" }
+        ]
+      }
     },
     "lib": {
       "registerInRootPom": true,

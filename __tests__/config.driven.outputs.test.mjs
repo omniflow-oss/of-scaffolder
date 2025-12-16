@@ -28,7 +28,6 @@ test("publish-ghcr workflow uses IMAGE_REGISTRY var (no hardcoded ghcr.io)", asy
     checkstyleVersion: "3.6.0",
     spotbugsVersion: "4.8.6.6",
     archunitVersion: "1.3.0",
-    dockerBaseImage: "registry.access.redhat.com/ubi9/ubi-minimal:9.5",
     addWorkflows: true
   });
 
@@ -36,4 +35,3 @@ test("publish-ghcr workflow uses IMAGE_REGISTRY var (no hardcoded ghcr.io)", asy
   expect(publish).toContain("IMAGE_REGISTRY");
   expect(publish).not.toContain("ghcr.io");
 });
-

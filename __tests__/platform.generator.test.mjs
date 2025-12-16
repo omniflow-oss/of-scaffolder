@@ -30,7 +30,6 @@ test("platform generator bootstraps root + bom + platform-starter", async () => 
     checkstyleVersion: "3.6.0",
     spotbugsVersion: "4.8.6.6",
     archunitVersion: "1.3.0",
-    dockerBaseImage: "registry.access.redhat.com/ubi9/ubi-minimal:9.5",
     addWorkflows: false
   });
 

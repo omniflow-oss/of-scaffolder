@@ -7,7 +7,26 @@ import nodePlop from "node-plop";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-test("eventbus generator adds Rev6A shared event contract + in-memory adapter", async () => {
+const addServiceStub = async ({ repoRoot, serviceName, groupId }) => {
+  const svcDir = path.join(repoRoot, "services", serviceName);
+  await fs.ensureDir(svcDir);
+  await fs.outputFile(
+    path.join(svcDir, "pom.xml"),
+    `<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>${groupId}</groupId>
+    <artifactId>platform-starter</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <relativePath>../../platform-starter/pom.xml</relativePath>
+  </parent>
+  <artifactId>${serviceName}</artifactId>
+</project>
+`
+  );
+};
+
+test("modules generator creates module container", async () => {
   const repoRoot = tmp.dirSync({ unsafeCleanup: true }).name;
   const plop = await nodePlop(path.join(__dirname, "..", "plopfile.cjs"));
 
@@ -31,31 +50,17 @@ test("eventbus generator adds Rev6A shared event contract + in-memory adapter", 
     addWorkflows: false
   });
 
-  const svcDir = path.join(repoRoot, "services", "identity");
-  await fs.ensureDir(svcDir);
-  await fs.outputFile(
-    path.join(svcDir, "pom.xml"),
-    `<project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>com.acme</groupId>
-    <artifactId>platform-starter</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-    <relativePath>../../platform-starter/pom.xml</relativePath>
-  </parent>
-  <artifactId>identity</artifactId>
-</project>
-`
-  );
+  await addServiceStub({ repoRoot, serviceName: "identity", groupId: "com.acme" });
 
-  const res = await plop.getGenerator("eventbus").runActions({
+  const res = await plop.getGenerator("modules").runActions({
     rootDir: repoRoot,
     serviceName: "identity",
-    rootPackage: "com.acme.identity"
+    rootPackage: "com.acme.identity",
+    moduleName: "profile"
   });
-
   expect(res.failures).toHaveLength(0);
 
-  await expect(fs.pathExists(path.join(svcDir, "src/main/java/com/acme/identity/shared/contract/event/EventEnvelope.java"))).resolves.toBe(true);
-  await expect(fs.pathExists(path.join(svcDir, "src/main/java/com/acme/identity/shared/infrastructure/eventbus/inmemory/InMemoryEventBusAdapter.java"))).resolves.toBe(true);
+  const gitkeep = path.join(repoRoot, "services", "identity", "src/main/java/com/acme/identity/module/profile/.gitkeep");
+  await expect(fs.pathExists(gitkeep)).resolves.toBe(true);
 });
+

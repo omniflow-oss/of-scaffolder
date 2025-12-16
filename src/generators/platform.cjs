@@ -35,12 +35,6 @@ const registerPlatformGenerator = ({ plop, ctx, validators }) => {
       { type: "input", name: "spotbugsVersion", message: "spotbugs-maven-plugin version:", default: d.spotbugsVersion },
       { type: "input", name: "archunitVersion", message: "archunit-junit5 version:", default: d.archunitVersion },
       {
-        type: "input",
-        name: "dockerBaseImage",
-        message: "Service Dockerfile native base image:",
-        default: d.dockerBaseImage
-      },
-      {
         type: "confirm",
         name: "addWorkflows",
         message: "Add GitHub Actions workflows (.github/workflows/ci.yml + publish-ghcr.yml)?",
@@ -65,7 +59,6 @@ const registerPlatformGenerator = ({ plop, ctx, validators }) => {
           answers.mavenMinVersion ||= d.mavenMinVersion;
           answers.quarkusPlatformGroupId ||= d.quarkusPlatformGroupId;
           answers.quarkusPlatformArtifactId ||= d.quarkusPlatformArtifactId;
-          answers.dockerBaseImage ||= d.dockerBaseImage;
           answers.platformVersion ||= d.platformVersion;
           answers.javaVersion ||= d.javaVersion;
           answers.quarkusPlatformVersion ||= d.quarkusPlatformVersion;

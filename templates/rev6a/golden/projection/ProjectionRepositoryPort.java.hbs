@@ -1,9 +1,0 @@
-package {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.domain.port;
-
-import {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.domain.projection.{{projectionPascal}}Projection;
-import io.smallrye.mutiny.Uni;
-
-public interface {{projectionPascal}}ProjectionRepositoryPort {
-  Uni<{{projectionPascal}}Projection> getById(String id);
-}
-

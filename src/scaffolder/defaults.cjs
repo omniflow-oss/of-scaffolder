@@ -21,7 +21,6 @@ const defaults = () => ({
       const java = env.OFCX_JAVA_VERSION || "21";
       return `quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java${java}`;
     })(),
-  dockerBaseImage: env.OFCX_DOCKER_BASE_IMAGE || "registry.access.redhat.com/ubi9/ubi-minimal:9.5"
 });
 
 module.exports = { defaults };

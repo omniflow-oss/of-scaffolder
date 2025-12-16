@@ -3,10 +3,8 @@
 Plop-based scaffolder that generates:
 
 - A Maven multi-module **platform skeleton** (root + `bom/` + `platform-starter/`) via the `platform` generator
-- A Rev6A Quarkus **service module** under `services/<serviceName>` (boot/shared/module)
 - A Java **library module** under `libs/<libName>`
-- Rev6A golden paths: `module`, `usecase`, `endpoint`, `connector`, `projection`
-- A Rev6A **in-memory EventBus** skeleton: `eventbus` (no Kafka)
+- Rev6A building blocks inside services: `modules`, `usecase`, `eventbus`
 - Optional GitHub Actions workflows (CI + GHCR publish) under `.github/workflows/` (only if absent)
 
 It is designed for a Maven “platform” repo layout (root `pom.xml` at the repo root) and refuses to overwrite existing modules.
@@ -43,29 +41,21 @@ npx @ofcx/of-scaffolder lib
 
 Recommended: keep internal libs versioned via the BOM by answering “yes” to `registerInBom`.
 
-### 3) Generate a service
+### 3) Add a usecase to an existing service
 
 ```bash
-npx @ofcx/of-scaffolder service
+npx @ofcx/of-scaffolder usecase
 ```
 
-The service generator reads `.platform-scaffolder.json` for defaults:
-
-- Quarkus extensions (`defaults.service.quarkusExtensions`)
-- Service test deps (`defaults.service.testDependencies`)
-- Docker base image (`defaults.service.dockerBaseImage`)
-- Internal libs to autowire (`defaults.service.internalLibs`)
+The `usecase` generator bootstraps (idempotent) the Rev6A `boot/` + `shared/` skeleton inside the service and ensures baseline Quarkus/test dependencies are present in `services/<serviceName>/pom.xml` (from `.platform-scaffolder.json`).
 
 ### 4) Add paved-road building blocks to an existing service
 
 Run from anywhere inside your repo and point `rootDir` to the repo root when asked.
 
 ```bash
-npx @ofcx/of-scaffolder module
+npx @ofcx/of-scaffolder modules
 npx @ofcx/of-scaffolder usecase
-npx @ofcx/of-scaffolder endpoint
-npx @ofcx/of-scaffolder connector
-npx @ofcx/of-scaffolder projection
 npx @ofcx/of-scaffolder eventbus
 ```
 
@@ -120,13 +110,9 @@ Or run a specific generator:
 
 ```bash
 npm run plop -- platform
-npm run plop -- service
 npm run plop -- lib
-npm run plop -- module
+npm run plop -- modules
 npm run plop -- usecase
-npm run plop -- endpoint
-npm run plop -- connector
-npm run plop -- projection
 npm run plop -- eventbus
 ```
 
@@ -142,13 +128,9 @@ Run a specific generator:
 
 ```bash
 npx @ofcx/of-scaffolder platform
-npx @ofcx/of-scaffolder service
 npx @ofcx/of-scaffolder lib
-npx @ofcx/of-scaffolder module
+npx @ofcx/of-scaffolder modules
 npx @ofcx/of-scaffolder usecase
-npx @ofcx/of-scaffolder endpoint
-npx @ofcx/of-scaffolder connector
-npx @ofcx/of-scaffolder projection
 npx @ofcx/of-scaffolder eventbus
 ```
 
@@ -159,7 +141,7 @@ Bootstraps a new repo root with:
 - `pom.xml` (aggregator parent + shared properties)
 - `bom/pom.xml` (imports Quarkus platform BOM + manages internal libs)
 - `platform-starter/pom.xml` (parent for services/libs; imports `platform-bom`; pluginManagement + `native` + `quality`)
-- `.platform-scaffolder.json` (defaults consumed by `service`/`lib` generators)
+- `.platform-scaffolder.json` (defaults consumed by `usecase`/`lib` generators)
 - `services/` and `libs/` directories
 - `.gitignore`
 - `config/checkstyle/checkstyle.xml` and `config/spotbugs/exclude.xml`
@@ -181,14 +163,9 @@ Publish to GHCR workflow variables (optional):
 
 - `IMAGE_TAG_LATEST` (set to `latest` if you want a “latest” tag; otherwise only SHA tags are pushed)
 
-### Prompts (service)
+### Prompts (usecase/modules/eventbus)
 
-- `rootDir`: repo root directory (absolute or relative to this scaffolder)
-- `serviceName`: kebab-case artifactId/folder name (e.g. `bff`, `connector-foo`)
-- `groupId`: Maven groupId (defaults from `.platform-scaffolder.json` if present)
-- `rootPackage`: Java package (default derived from `groupId` + service name)
-- `addWorkflows`: defaults from `.platform-scaffolder.json` if present
-- `registerInRootPom`: defaults from `.platform-scaffolder.json` if present
+These generators operate on an existing service under `services/<serviceName>` (must contain `pom.xml`).
 
 ### Prompts (lib)
 
@@ -201,17 +178,12 @@ Publish to GHCR workflow variables (optional):
 
 ## What gets generated
 
-### Service (`services/<serviceName>`) — Rev6A
+### Modules + usecases (inside `services/<serviceName>`)
 
-- `pom.xml` (parent = `platform-starter`; optionally autowires internal libs)
-- `src/main/resources/application.properties`
-- `src/main/docker/Dockerfile.native`
-- `boot/` (Quarkus entrypoint + wiring)
-- `shared/contract` (`Result`/`Error`/`EventEnvelope` ports)
-- `shared/infrastructure` (HTTP renderers, in-memory event bus, strategy helpers)
-- `module/` (package-level grouping only)
-- `src/test/.../Rev6AArchitectureTest.java` (ArchUnit guardrails)
-- `README.md`
+- `modules`: creates `src/main/java/<rootPackage>/module/<module>/.gitkeep`
+- `usecase`: creates the canonical usecase tree under `src/main/java/<rootPackage>/module/<module>/<usecase>usecase/...`
+- `usecase`: bootstraps (if absent) `boot/`, `shared/contract`, `shared/infrastructure`, and `src/test/.../Rev6AArchitectureTest.java`
+- `usecase`: ensures baseline Quarkus/test dependencies exist in `services/<serviceName>/pom.xml` (from `.platform-scaffolder.json`)
 
 ### Lib (`libs/<libName>`)
 
@@ -227,20 +199,12 @@ Publish to GHCR workflow variables (optional):
 
 These are only written if the files do not already exist.
 
-## Optional autowire (service deps)
+## Usecase POM defaults (config-driven)
 
-If `.platform-scaffolder.json` exists, the `service` generator defaults internal dependencies from:
+The `usecase` generator patches `services/<serviceName>/pom.xml` using:
 
-- `.platform-scaffolder.json` → `defaults.service.internalLibs` (e.g. `["shared-kernel"]`)
-
-You can also choose interactively (it will suggest libs discovered under `libs/*/pom.xml`).
-
-### Quarkus extensions (config-driven)
-
-Generated service POMs are driven by `.platform-scaffolder.json`:
-
-- `.platform-scaffolder.json` → `defaults.service.quarkusExtensions` controls which `io.quarkus:*` dependencies are added.
-- `.platform-scaffolder.json` → `defaults.service.testDependencies` controls test dependencies (Quarkus test, RestAssured, ArchUnit, etc.).
+- `.platform-scaffolder.json` → `defaults.usecase.pom.dependencies`
+- `.platform-scaffolder.json` → `defaults.usecase.pom.testDependencies`
 
 Generated lib POMs are driven by `.platform-scaffolder.json`:
 
@@ -278,12 +242,11 @@ When running the `platform` generator, prompt defaults can be overridden via env
 - `OFCX_QUARKUS_PLATFORM_VERSION`
 - `OFCX_JAVA_VERSION`
 - `OFCX_MANDREL_BUILDER_IMAGE`
-- `OFCX_DOCKER_BASE_IMAGE`
 - `OFCX_MAVEN_MIN_VERSION`
 
 ## Safety / validation
 
-- Will error if `services/<serviceName>/pom.xml` already exists.
+- Will error if `services/<serviceName>/pom.xml` is missing (for `modules`/`usecase`/`eventbus`).
 - Will error if `libs/<libName>/pom.xml` already exists.
 - Enforces kebab-case for `serviceName`/`libName`.
 - Validates `rootDir` by requiring a `pom.xml` at that path.
