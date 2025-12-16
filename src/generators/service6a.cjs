@@ -91,6 +91,7 @@ const registerService6aGenerator = ({ plop, ctx, validators, utils }) => {
         { type: "add", path: path.join(svcDir, "src/main/java/{{javaPackagePath rootPackage}}/shared/infrastructure/strategy/StrategySelectorSupport.java"), templateFile: ctx.template("rev6a", "shared", "infrastructure", "strategy", "StrategySelectorSupport.java.hbs") },
 
         { type: "add", path: path.join(svcDir, "src/main/java/{{javaPackagePath rootPackage}}/module/.gitkeep"), templateFile: ctx.template("service", "gitkeep.hbs") },
+        { type: "add", path: path.join(svcDir, "src/test/java/{{javaPackagePath rootPackage}}/Rev6AArchitectureTest.java"), templateFile: ctx.template("rev6a", "test", "Rev6AArchitectureTest.java.hbs") },
 
         async (a) => {
           if (!a.registerInRootPom) return "Skipped root pom module registration";

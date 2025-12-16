@@ -50,6 +50,12 @@ test("service6a + usecase6a generate Rev6A structure", async () => {
 
   const svcDir = path.join(repoRoot, "services", "identity");
   await expect(fs.pathExists(path.join(svcDir, "src/main/java/com/acme/identity/boot/Application.java"))).resolves.toBe(true);
+  await expect(fs.pathExists(path.join(svcDir, "src/main/java/com/acme/identity/shared/infrastructure/http/ValidationErrorRenderer.java"))).resolves.toBe(true);
+  await expect(fs.pathExists(path.join(svcDir, "src/main/java/com/acme/identity/shared/infrastructure/strategy/StrategySelectorSupport.java"))).resolves.toBe(true);
+  await expect(fs.pathExists(path.join(svcDir, "src/test/java/com/acme/identity/Rev6AArchitectureTest.java"))).resolves.toBe(true);
+
+  const archTest = await fs.readFile(path.join(svcDir, "src/test/java/com/acme/identity/Rev6AArchitectureTest.java"), "utf8");
+  expect(archTest).toContain("notDependOnEachOther");
   await expect(
     fs.pathExists(
       path.join(
@@ -59,4 +65,3 @@ test("service6a + usecase6a generate Rev6A structure", async () => {
     )
   ).resolves.toBe(true);
 });
-
