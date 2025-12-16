@@ -7,7 +7,7 @@ import nodePlop from "node-plop";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-test("eventbus generator adds feature-local EventBus skeleton and updates pom/properties", async () => {
+test("eventbus generator adds Rev6A shared event contract + in-memory adapter", async () => {
   const repoRoot = tmp.dirSync({ unsafeCleanup: true }).name;
   const plop = await nodePlop(path.join(__dirname, "..", "plopfile.cjs"));
 
@@ -17,6 +17,9 @@ test("eventbus generator adds feature-local EventBus skeleton and updates pom/pr
     platformArtifactId: "platform",
     platformVersion: "1.0.0-SNAPSHOT",
     javaVersion: "21",
+    mavenMinVersion: "3.9.0",
+    quarkusPlatformGroupId: "io.quarkus.platform",
+    quarkusPlatformArtifactId: "quarkus-bom",
     quarkusPlatformVersion: "3.19.1",
     mandrelBuilderImage: "quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java21",
     enforcerVersion: "3.5.0",
@@ -25,13 +28,15 @@ test("eventbus generator adds feature-local EventBus skeleton and updates pom/pr
     checkstyleVersion: "3.6.0",
     spotbugsVersion: "4.8.6.6",
     archunitVersion: "1.3.0",
+    dockerBaseImage: "registry.access.redhat.com/ubi9/ubi-minimal:9.5",
     addWorkflows: false
   });
 
   await plop.getGenerator("service").runActions({
     rootDir: repoRoot,
     serviceName: "identity",
-    basePackage: "com.acme.identity",
+    groupId: "com.acme",
+    rootPackage: "com.acme.identity",
     addWorkflows: false,
     registerInRootPom: true,
     autowireInternalLibs: false,
@@ -41,21 +46,13 @@ test("eventbus generator adds feature-local EventBus skeleton and updates pom/pr
   const res = await plop.getGenerator("eventbus").runActions({
     rootDir: repoRoot,
     serviceName: "identity",
-    groupId: "com.acme",
-    basePackage: "com.acme.identity",
-    contextName: "user",
+    rootPackage: "com.acme.identity"
   });
 
   expect(res.failures).toHaveLength(0);
 
   const svcDir = path.join(repoRoot, "services", "identity");
-  await expect(
-    fs.pathExists(path.join(svcDir, "src/main/java/com/acme/identity/shared/strategy/StrategyRegistry.java"))
-  ).resolves.toBe(true);
-  await expect(
-    fs.pathExists(path.join(svcDir, "src/main/java/com/acme/identity/user/application/port/EventBus.java"))
-  ).resolves.toBe(true);
-
-  const props = await fs.readFile(path.join(svcDir, "src/main/resources/application.properties"), "utf8");
-  expect(props).toContain("user.eventbus.adapter=default");
+  await expect(fs.pathExists(path.join(svcDir, "src/main/java/com/acme/identity/shared/contract/event/EventEnvelope.java"))).resolves.toBe(true);
+  await expect(fs.pathExists(path.join(svcDir, "src/main/java/com/acme/identity/shared/infrastructure/eventbus/inmemory/InMemoryEventBusAdapter.java"))).resolves.toBe(true);
 });
+

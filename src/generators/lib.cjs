@@ -61,10 +61,10 @@ const registerLibGenerator = ({ plop, ctx, validators, utils }) => {
           if (!answers.platformArtifactId) throw new Error(`Could not determine platform artifactId from: ${rootPomPath}`);
           return "OK";
         },
-        { type: "add", path: path.join(libDir, "pom.xml"), templateFile: ctx.template("lib", "pom.xml.hbs") },
-        { type: "add", path: path.join(libDir, "README.md"), templateFile: ctx.template("lib", "README.md.hbs") },
-        { type: "add", path: path.join(libDir, "src/main/java/{{javaPackagePath basePackage}}/.gitkeep"), templateFile: ctx.template("lib", "gitkeep.hbs") },
-        { type: "add", path: path.join(libDir, "src/test/java/{{javaPackagePath basePackage}}/LibTest.java"), templateFile: ctx.template("lib", "LibTest.java.hbs") },
+        { type: "add", path: path.join(libDir, "pom.xml"), templateFile: ctx.template("rev6a", "lib", "pom.xml.hbs") },
+        { type: "add", path: path.join(libDir, "README.md"), templateFile: ctx.template("rev6a", "lib", "README.md.hbs") },
+        { type: "add", path: path.join(libDir, "src/main/java/{{javaPackagePath basePackage}}/.gitkeep"), templateFile: ctx.template("rev6a", "lib", "gitkeep.hbs") },
+        { type: "add", path: path.join(libDir, "src/test/java/{{javaPackagePath basePackage}}/LibTest.java"), templateFile: ctx.template("rev6a", "lib", "LibTest.java.hbs") },
         async (a) => {
           if (a.registerInRootPom) {
             const modulePath = path.posix.join("libs", a.libName);

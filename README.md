@@ -3,11 +3,11 @@
 Plop-based scaffolder that generates:
 
 - A Maven multi-module **platform skeleton** (root + `bom/` + `platform-starter/`) via the `platform` generator
-- A Quarkus **service module** under `services/<serviceName>`
+- A Rev6A Quarkus **service module** under `services/<serviceName>` (boot/shared/module)
 - A Java **library module** under `libs/<libName>`
-- Golden-path building blocks inside services: `connector`, `feature`, `endpoint`, `projection`
-- A feature-local **in-memory EventBus** skeleton: `eventbus` (no Kafka by default)
-  - Optional GitHub Actions workflows (CI + GHCR publish) under `.github/workflows/` (only if absent)
+- Rev6A golden paths: `module`, `usecase`, `endpoint`, `connector`, `projection`
+- A Rev6A **in-memory EventBus** skeleton: `eventbus` (no Kafka)
+- Optional GitHub Actions workflows (CI + GHCR publish) under `.github/workflows/` (only if absent)
 
 It is designed for a Maven “platform” repo layout (root `pom.xml` at the repo root) and refuses to overwrite existing modules.
 
@@ -61,18 +61,12 @@ The service generator reads `.platform-scaffolder.json` for defaults:
 Run from anywhere inside your repo and point `rootDir` to the repo root when asked.
 
 ```bash
-npx @ofcx/of-scaffolder connector
-npx @ofcx/of-scaffolder feature
+npx @ofcx/of-scaffolder module
+npx @ofcx/of-scaffolder usecase
 npx @ofcx/of-scaffolder endpoint
+npx @ofcx/of-scaffolder connector
 npx @ofcx/of-scaffolder projection
 npx @ofcx/of-scaffolder eventbus
-npx @ofcx/of-scaffolder service6a
-npx @ofcx/of-scaffolder usecase6a
-npx @ofcx/of-scaffolder eventbus6a
-npx @ofcx/of-scaffolder feature6a
-npx @ofcx/of-scaffolder endpoint6a
-npx @ofcx/of-scaffolder connector6a
-npx @ofcx/of-scaffolder projection6a
 ```
 
 ## Install
@@ -128,9 +122,10 @@ Or run a specific generator:
 npm run plop -- platform
 npm run plop -- service
 npm run plop -- lib
-npm run plop -- connector
-npm run plop -- feature
+npm run plop -- module
+npm run plop -- usecase
 npm run plop -- endpoint
+npm run plop -- connector
 npm run plop -- projection
 npm run plop -- eventbus
 ```
@@ -149,9 +144,10 @@ Run a specific generator:
 npx @ofcx/of-scaffolder platform
 npx @ofcx/of-scaffolder service
 npx @ofcx/of-scaffolder lib
-npx @ofcx/of-scaffolder connector
-npx @ofcx/of-scaffolder feature
+npx @ofcx/of-scaffolder module
+npx @ofcx/of-scaffolder usecase
 npx @ofcx/of-scaffolder endpoint
+npx @ofcx/of-scaffolder connector
 npx @ofcx/of-scaffolder projection
 npx @ofcx/of-scaffolder eventbus
 ```
@@ -190,7 +186,7 @@ Publish to GHCR workflow variables (optional):
 - `rootDir`: repo root directory (absolute or relative to this scaffolder)
 - `serviceName`: kebab-case artifactId/folder name (e.g. `bff`, `connector-foo`)
 - `groupId`: Maven groupId (defaults from `.platform-scaffolder.json` if present)
-- `basePackage`: Java package (default derived from `groupId` + service name)
+- `rootPackage`: Java package (default derived from `groupId` + service name)
 - `addWorkflows`: defaults from `.platform-scaffolder.json` if present
 - `registerInRootPom`: defaults from `.platform-scaffolder.json` if present
 
@@ -205,17 +201,16 @@ Publish to GHCR workflow variables (optional):
 
 ## What gets generated
 
-### Service (`services/<serviceName>`)
+### Service (`services/<serviceName>`) — Rev6A
 
 - `pom.xml` (parent = `platform-starter`; optionally autowires internal libs)
 - `src/main/resources/application.properties`
 - `src/main/docker/Dockerfile.native`
-- Java package skeleton:
-  - `api/`, `application/`, `domain/`, `infrastructure/`, `config/`
-- Minimal endpoint + error model:
-  - `api/ProfileResource.java` (`GET /healthz`)
-  - `api/error/ErrorCode.java`, `ErrorResponse.java`, `GlobalExceptionMapper.java`
-- `src/test/.../ServiceTest.java` (Quarkus test)
+- `boot/` (Quarkus entrypoint + wiring)
+- `shared/contract` (`Result`/`Error`/`EventEnvelope` ports)
+- `shared/infrastructure` (HTTP renderers, in-memory event bus, strategy helpers)
+- `module/` (package-level grouping only)
+- `src/test/.../Rev6AArchitectureTest.java` (ArchUnit guardrails)
 - `README.md`
 
 ### Lib (`libs/<libName>`)
@@ -268,15 +263,11 @@ Generated repos include a `quality` Maven profile (in `platform-starter/pom.xml`
 - Checkstyle
 - SpotBugs
 
-Generated services include an ArchUnit test (`ArchitectureTest`) enforcing layer boundaries.
+Generated services include an ArchUnit test (`Rev6AArchitectureTest`) enforcing:
 
-## Rev6A generators (boot/shared/module)
-
-If you want the Rev6A “usecase-per-package” structure (boot + shared contract/infrastructure + module/<module>/<usecase>):
-
-- `service6a`: creates a service skeleton under `services/<name>` with `boot/`, `shared/`, and `module/`
-- `usecase6a`: adds a canonical usecase tree under `module/<module>/<usecase>/...`
-- `eventbus6a`: adds the shared in-memory event bus contract + adapter (no Kafka)
+- `shared` must not depend on `module`
+- usecases must not depend on each other
+- `domain`/`application` must not depend on `infrastructure`
 
 ## Environment defaults (this repo)
 

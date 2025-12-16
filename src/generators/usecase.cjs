@@ -1,8 +1,8 @@
 const path = require("path");
 const fs = require("fs-extra");
 
-const registerUseCase6aGenerator = ({ plop, ctx, validators, utils }) => {
-  plop.setGenerator("usecase6a", {
+const registerUseCaseGenerator = ({ plop, ctx, validators, utils }) => {
+  plop.setGenerator("usecase", {
     description: "Add a Rev6A usecase skeleton under module/<module>/<usecase>/ inside an existing service",
     prompts: [
       { type: "input", name: "rootDir", message: "Repo root directory:", default: "../..", validate: validators.validateRootPath },
@@ -43,5 +43,4 @@ const registerUseCase6aGenerator = ({ plop, ctx, validators, utils }) => {
   });
 };
 
-module.exports = { registerUseCase6aGenerator };
-
+module.exports = { registerUseCaseGenerator };

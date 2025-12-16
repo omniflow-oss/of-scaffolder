@@ -7,7 +7,7 @@ import nodePlop from "node-plop";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-test("Rev6A golden paths: feature6a + endpoint6a + connector6a + projection6a", async () => {
+test("Rev6A golden paths: module + endpoint + connector + projection", async () => {
   const repoRoot = tmp.dirSync({ unsafeCleanup: true }).name;
   const plop = await nodePlop(path.join(__dirname, "..", "plopfile.cjs"));
 
@@ -32,7 +32,7 @@ test("Rev6A golden paths: feature6a + endpoint6a + connector6a + projection6a", 
     addWorkflows: false
   });
 
-  await plop.getGenerator("service6a").runActions({
+  await plop.getGenerator("service").runActions({
     rootDir: repoRoot,
     serviceName: "identity",
     groupId: "com.acme",
@@ -40,14 +40,14 @@ test("Rev6A golden paths: feature6a + endpoint6a + connector6a + projection6a", 
     registerInRootPom: true
   });
 
-  await plop.getGenerator("feature6a").runActions({
+  await plop.getGenerator("module").runActions({
     rootDir: repoRoot,
     serviceName: "identity",
     rootPackage: "com.acme.identity",
     moduleName: "profile"
   });
 
-  await plop.getGenerator("endpoint6a").runActions({
+  await plop.getGenerator("endpoint").runActions({
     rootDir: repoRoot,
     serviceName: "identity",
     rootPackage: "com.acme.identity",
@@ -55,7 +55,7 @@ test("Rev6A golden paths: feature6a + endpoint6a + connector6a + projection6a", 
     endpointName: "getprofile"
   });
 
-  await plop.getGenerator("connector6a").runActions({
+  await plop.getGenerator("connector").runActions({
     rootDir: repoRoot,
     serviceName: "identity",
     rootPackage: "com.acme.identity",
@@ -64,7 +64,7 @@ test("Rev6A golden paths: feature6a + endpoint6a + connector6a + projection6a", 
     connectorName: "salesforce"
   });
 
-  await plop.getGenerator("projection6a").runActions({
+  await plop.getGenerator("projection").runActions({
     rootDir: repoRoot,
     serviceName: "identity",
     rootPackage: "com.acme.identity",
@@ -91,4 +91,3 @@ test("Rev6A golden paths: feature6a + endpoint6a + connector6a + projection6a", 
   await expect(fs.pathExists(path.join(base, "domain/projection/CustomerProjection.java"))).resolves.toBe(true);
   await expect(fs.pathExists(path.join(base, "infrastructure/persistence/CustomerProjectionRepositoryAdapter.java"))).resolves.toBe(true);
 });
-

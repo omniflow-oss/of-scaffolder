@@ -31,7 +31,13 @@ const createFakeRepo = async () => {
     groupId: "com.acme",
     platformArtifactId: "platform",
     platformVersion: "1.0.0-SNAPSHOT",
-    defaults: { service: { dockerBaseImage: "registry.access.redhat.com/ubi9/ubi-minimal:9.5" } }
+    defaults: {
+      service: {
+        dockerBaseImage: "registry.access.redhat.com/ubi9/ubi-minimal:9.5",
+        quarkusExtensions: ["quarkus-rest", "quarkus-rest-jackson", "quarkus-hibernate-validator", "quarkus-smallrye-health"],
+        testDependencies: [{ groupId: "com.tngtech.archunit", artifactId: "archunit-junit5", version: "${archunit.version}", scope: "test" }]
+      }
+    }
   });
   return dir;
 };
@@ -46,9 +52,10 @@ test("service generator can add workflows (only if absent)", async () => {
     rootDir: repoRoot,
     serviceName: "identity",
     groupId: "com.acme",
-    basePackage: "com.acme.identity",
+    rootPackage: "com.acme.identity",
     addWorkflows: true,
-    registerInRootPom: false
+    registerInRootPom: false,
+    autowireInternalLibs: false
   });
 
   expect(res.failures).toHaveLength(0);

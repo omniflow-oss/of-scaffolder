@@ -11,8 +11,6 @@
   <artifactId>{{serviceName}}</artifactId>
 
   <dependencies>
-    <!-- scaffolder:service-deps:start -->
-    <!-- scaffolder:service-deps:end -->
 {{#each internalLibs}}
     <dependency>
       <groupId>{{../groupId}}</groupId>
@@ -21,7 +19,6 @@
 
 {{/each}}
 
-    <!-- scaffolder:quarkus-ext:start -->
 {{#each quarkusExtensions}}
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -29,7 +26,6 @@
     </dependency>
 
 {{/each}}
-    <!-- scaffolder:quarkus-ext:end -->
 {{#each testDependencies}}
     <dependency>
       <groupId>{{groupId}}</groupId>
@@ -62,3 +58,4 @@
     </plugins>
   </build>
 </project>
+

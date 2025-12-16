@@ -76,10 +76,12 @@ test("service generator creates full service skeleton", async () => {
   const res = await gen.runActions({
     rootDir: repoRoot,
     serviceName: "bff",
-    basePackage: "com.acme.bff",
+    groupId: "com.acme",
+    rootPackage: "com.acme.bff",
     addWorkflows: false,
     registerInRootPom: true,
-    autowireInternalLibs: true
+    autowireInternalLibs: true,
+    internalLibs: ["shared-kernel"]
   });
 
   expect(res.failures).toHaveLength(0);
@@ -87,7 +89,9 @@ test("service generator creates full service skeleton", async () => {
   const svcDir = path.join(repoRoot, "services", "bff");
   await expect(fs.pathExists(path.join(svcDir, "pom.xml"))).resolves.toBe(true);
   await expect(fs.pathExists(path.join(svcDir, "src/main/docker/Dockerfile.native"))).resolves.toBe(true);
-  await expect(fs.pathExists(path.join(svcDir, "src/test/java/com/acme/bff/ServiceTest.java"))).resolves.toBe(true);
+  await expect(fs.pathExists(path.join(svcDir, "src/main/java/com/acme/bff/boot/Application.java"))).resolves.toBe(true);
+  await expect(fs.pathExists(path.join(svcDir, "src/main/java/com/acme/bff/shared/contract/result/Result.java"))).resolves.toBe(true);
+  await expect(fs.pathExists(path.join(svcDir, "src/test/java/com/acme/bff/Rev6AArchitectureTest.java"))).resolves.toBe(true);
 
   const pom = await fs.readFile(path.join(svcDir, "pom.xml"), "utf8");
   expect(pom).toContain("<artifactId>bff</artifactId>");
@@ -98,10 +102,6 @@ test("service generator creates full service skeleton", async () => {
   const dockerfile = await fs.readFile(path.join(svcDir, "src/main/docker/Dockerfile.native"), "utf8");
   expect(dockerfile).toContain("registry.access.redhat.com/ubi9/ubi-minimal:9.5");
   expect(dockerfile).toContain('ENTRYPOINT ["/work/application"');
-
-  const resource = await fs.readFile(path.join(svcDir, "src/main/java/com/acme/bff/api/ProfileResource.java"), "utf8");
-  expect(resource).toContain('Path("/healthz")');
-  expect(resource).toContain('"service", "bff"');
 
   const rootPom = await fs.readFile(path.join(repoRoot, "pom.xml"), "utf8");
   expect(rootPom).toContain("<module>services/bff</module>");

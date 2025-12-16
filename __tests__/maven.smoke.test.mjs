@@ -49,42 +49,35 @@ it("maven clean verify succeeds on generated repo", async () => {
   await plop.getGenerator("service").runActions({
     rootDir: repoRoot,
     serviceName: "identity",
-    basePackage: "com.acme.identity",
     addWorkflows: false,
     registerInRootPom: true,
+    groupId: "com.acme",
+    rootPackage: "com.acme.identity",
     autowireInternalLibs: true,
     internalLibs: ["shared-kernel"]
   });
 
-  await plop.getGenerator("service6a").runActions({
+  await plop.getGenerator("usecase").runActions({
     rootDir: repoRoot,
-    serviceName: "rev6a-identity",
-    groupId: "com.acme",
-    rootPackage: "com.acme.rev6aidentity",
-    registerInRootPom: true
-  });
-
-  await plop.getGenerator("usecase6a").runActions({
-    rootDir: repoRoot,
-    serviceName: "rev6a-identity",
-    rootPackage: "com.acme.rev6aidentity",
+    serviceName: "identity",
+    rootPackage: "com.acme.identity",
     moduleName: "profile",
     usecaseName: "getprofile"
   });
 
-  await plop.getGenerator("connector6a").runActions({
+  await plop.getGenerator("connector").runActions({
     rootDir: repoRoot,
-    serviceName: "rev6a-identity",
-    rootPackage: "com.acme.rev6aidentity",
+    serviceName: "identity",
+    rootPackage: "com.acme.identity",
     moduleName: "profile",
     usecaseName: "getprofile",
     connectorName: "salesforce"
   });
 
-  await plop.getGenerator("projection6a").runActions({
+  await plop.getGenerator("projection").runActions({
     rootDir: repoRoot,
-    serviceName: "rev6a-identity",
-    rootPackage: "com.acme.rev6aidentity",
+    serviceName: "identity",
+    rootPackage: "com.acme.identity",
     moduleName: "profile",
     usecaseName: "getprofile",
     projectionName: "customer"
