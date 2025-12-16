@@ -44,8 +44,6 @@ test("eventbus generator adds feature-local EventBus skeleton and updates pom/pr
     groupId: "com.acme",
     basePackage: "com.acme.identity",
     contextName: "user",
-    includeKafkaAdapter: true,
-    ensureKafkaDependency: true
   });
 
   expect(res.failures).toHaveLength(0);
@@ -57,16 +55,7 @@ test("eventbus generator adds feature-local EventBus skeleton and updates pom/pr
   await expect(
     fs.pathExists(path.join(svcDir, "src/main/java/com/acme/identity/user/application/port/EventBus.java"))
   ).resolves.toBe(true);
-  await expect(
-    fs.pathExists(path.join(svcDir, "src/main/java/com/acme/identity/user/infrastructure/adapter/event/kafka/KafkaEventBusAdapter.java"))
-  ).resolves.toBe(true);
-
-  const pom = await fs.readFile(path.join(svcDir, "pom.xml"), "utf8");
-  expect(pom).toContain("quarkus-smallrye-reactive-messaging-kafka");
 
   const props = await fs.readFile(path.join(svcDir, "src/main/resources/application.properties"), "utf8");
-  expect(props).toContain("user.eventbus.adapter=kafka");
-  expect(props).toContain("mp.messaging.outgoing.user-events.connector=smallrye-kafka");
-  expect(props).toContain("mp.messaging.outgoing.user-events.topic=user.events");
+  expect(props).toContain("user.eventbus.adapter=default");
 });
-

@@ -28,25 +28,11 @@ const registerEventBusGenerator = ({ plop, ctx, validators, utils }) => {
         name: "contextName",
         message: "Feature/context name (used for config + topic), e.g. user, billing:",
         validate: validators.validateJavaIdentifier
-      },
-      {
-        type: "confirm",
-        name: "includeKafkaAdapter",
-        message: "Also generate Kafka adapter + reactive-messaging config?",
-        default: false
-      },
-      {
-        type: "confirm",
-        name: "ensureKafkaDependency",
-        message: "Ensure Quarkus Kafka reactive-messaging dependency in service pom.xml?",
-        default: true,
-        when: (a) => Boolean(a.includeKafkaAdapter)
       }
     ],
     actions: function (answers) {
       const rootDir = path.resolve(process.cwd(), answers.rootDir);
       const svcDir = path.join(rootDir, "services", answers.serviceName);
-      const pomPath = path.join(svcDir, "pom.xml");
       const propsPath = path.join(svcDir, "src/main/resources/application.properties");
 
       const featureBasePackage = `${answers.basePackage}.${utils.toJavaPackageSafe(answers.contextName)}`;
@@ -58,7 +44,7 @@ const registerEventBusGenerator = ({ plop, ctx, validators, utils }) => {
 
       return [
         async () => {
-          if (!(await fs.pathExists(pomPath))) throw new Error(`Service not found: ${svcDir}`);
+          if (!(await fs.pathExists(path.join(svcDir, "pom.xml")))) throw new Error(`Service not found: ${svcDir}`);
           return "OK";
         },
         async () => {
@@ -105,12 +91,7 @@ const registerEventBusGenerator = ({ plop, ctx, validators, utils }) => {
           templateFile: ctx.template("eventbus", "ConfigurationKeys.java.hbs")
         },
         async (a) => {
-          const lines = [];
-          lines.push(`${a.configKey}=${a.includeKafkaAdapter ? "kafka" : "default"}`);
-          if (a.includeKafkaAdapter) {
-            lines.push(`mp.messaging.outgoing.${a.channelName}.connector=smallrye-kafka`);
-            lines.push(`mp.messaging.outgoing.${a.channelName}.topic=${a.topicName}`);
-          }
+          const lines = [`${a.configKey}=default`];
           await utils.appendPropertiesIfMissing({
             propertiesPath: propsPath,
             marker: `eventbus:${a.contextName}`,
@@ -118,37 +99,9 @@ const registerEventBusGenerator = ({ plop, ctx, validators, utils }) => {
           });
           return "Updated application.properties (if missing)";
         },
-        async (a) => {
-          if (!a.includeKafkaAdapter) return "Skipped Kafka adapter";
-          await fs.ensureDir(path.join(svcDir, "src/main/java", utils.javaPackageToPath(a.featureBasePackage), "infrastructure/adapter/event/kafka"));
-          await fs.outputFile(
-            path.join(
-              svcDir,
-              "src/main/java",
-              utils.javaPackageToPath(a.featureBasePackage),
-              "infrastructure/adapter/event/kafka/KafkaEventBusAdapter.java"
-            ),
-            plop.renderString(fs.readFileSync(ctx.template("eventbus", "KafkaEventBusAdapter.java.hbs"), "utf8"), a),
-            { flag: "wx" }
-          ).catch(() => {});
-          return "Added Kafka adapter (if absent)";
-        },
-        async (a) => {
-          if (!a.includeKafkaAdapter || !a.ensureKafkaDependency) return "Skipped Kafka dependency";
-          const res = await utils.insertPomDependencyIfMissing({
-            pomPath,
-            groupId: "io.quarkus",
-            artifactId: "quarkus-smallrye-reactive-messaging-kafka",
-            markerStart: "<!-- scaffolder:quarkus-ext:start -->",
-            markerEnd: "<!-- scaffolder:quarkus-ext:end -->"
-          });
-          if (res === null) return "Skipped pom dependency insert (no <dependencies>)";
-          return res ? "Added quarkus-smallrye-reactive-messaging-kafka dependency" : "Kafka dependency already present";
-        }
       ];
     }
   });
 };
 
 module.exports = { registerEventBusGenerator };
-
