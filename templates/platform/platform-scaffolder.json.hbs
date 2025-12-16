@@ -6,7 +6,10 @@
   "versions": {
     "java": "{{javaVersion}}",
     "quarkusPlatform": "{{quarkusPlatformVersion}}",
+    "quarkusPlatformGroupId": "{{quarkusPlatformGroupId}}",
+    "quarkusPlatformArtifactId": "{{quarkusPlatformArtifactId}}",
     "mandrelBuilderImage": "{{mandrelBuilderImage}}",
+    "mavenMinVersion": "{{mavenMinVersion}}",
     "enforcerPlugin": "{{enforcerVersion}}",
     "surefirePlugin": "{{surefireVersion}}",
     "spotlessPlugin": "{{spotlessVersion}}",
@@ -19,11 +22,17 @@
       "addWorkflows": false,
       "registerInRootPom": true,
       "internalLibs": [],
+      "dockerBaseImage": "{{dockerBaseImage}}",
       "quarkusExtensions": [
         "quarkus-rest",
         "quarkus-rest-jackson",
         "quarkus-hibernate-validator",
         "quarkus-smallrye-health"
+      ],
+      "testDependencies": [
+        { "groupId": "io.quarkus", "artifactId": "quarkus-junit5", "scope": "test" },
+        { "groupId": "io.rest-assured", "artifactId": "rest-assured", "scope": "test" },
+        { "groupId": "com.tngtech.archunit", "artifactId": "archunit-junit5", "version": "${archunit.version}", "scope": "test" }
       ]
     },
     "lib": {

@@ -1,7 +1,9 @@
 const path = require("path");
 const fs = require("fs-extra");
+const { defaults } = require("../scaffolder/defaults.cjs");
 
 const registerPlatformGenerator = ({ plop, ctx, validators }) => {
+  const d = defaults();
   plop.setGenerator("platform", {
     description: "Bootstrap a new platform repo (root + bom + platform-starter + base folders)",
     prompts: [
@@ -14,21 +16,30 @@ const registerPlatformGenerator = ({ plop, ctx, validators }) => {
       },
       { type: "input", name: "groupId", message: "Maven groupId:", default: "com.yourorg" },
       { type: "input", name: "platformArtifactId", message: "Root artifactId (aggregator parent):", default: "platform" },
-      { type: "input", name: "platformVersion", message: "Platform version:", default: "1.0.0-SNAPSHOT" },
-      { type: "input", name: "javaVersion", message: "Java version:", default: "21" },
-      { type: "input", name: "quarkusPlatformVersion", message: "Quarkus platform version:", default: "3.19.1" },
+      { type: "input", name: "platformVersion", message: "Platform version:", default: d.platformVersion },
+      { type: "input", name: "javaVersion", message: "Java version:", default: d.javaVersion },
+      { type: "input", name: "mavenMinVersion", message: "Minimum Maven version:", default: d.mavenMinVersion },
+      { type: "input", name: "quarkusPlatformGroupId", message: "Quarkus platform groupId:", default: d.quarkusPlatformGroupId },
+      { type: "input", name: "quarkusPlatformArtifactId", message: "Quarkus platform artifactId:", default: d.quarkusPlatformArtifactId },
+      { type: "input", name: "quarkusPlatformVersion", message: "Quarkus platform version:", default: d.quarkusPlatformVersion },
       {
         type: "input",
         name: "mandrelBuilderImage",
         message: "Mandrel builder image (Quarkus native container build):",
-        default: (a) => `quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java${a.javaVersion || "21"}`
+        default: (a) => d.mandrelBuilderImage.replace(/java\d+$/, `java${a.javaVersion || d.javaVersion}`)
       },
-      { type: "input", name: "enforcerVersion", message: "maven-enforcer-plugin version:", default: "3.5.0" },
-      { type: "input", name: "surefireVersion", message: "maven-surefire-plugin version:", default: "3.5.2" },
-      { type: "input", name: "spotlessVersion", message: "spotless-maven-plugin version:", default: "2.44.3" },
-      { type: "input", name: "checkstyleVersion", message: "maven-checkstyle-plugin version:", default: "3.6.0" },
-      { type: "input", name: "spotbugsVersion", message: "spotbugs-maven-plugin version:", default: "4.8.6.6" },
-      { type: "input", name: "archunitVersion", message: "archunit-junit5 version:", default: "1.3.0" },
+      { type: "input", name: "enforcerVersion", message: "maven-enforcer-plugin version:", default: d.enforcerVersion },
+      { type: "input", name: "surefireVersion", message: "maven-surefire-plugin version:", default: d.surefireVersion },
+      { type: "input", name: "spotlessVersion", message: "spotless-maven-plugin version:", default: d.spotlessVersion },
+      { type: "input", name: "checkstyleVersion", message: "maven-checkstyle-plugin version:", default: d.checkstyleVersion },
+      { type: "input", name: "spotbugsVersion", message: "spotbugs-maven-plugin version:", default: d.spotbugsVersion },
+      { type: "input", name: "archunitVersion", message: "archunit-junit5 version:", default: d.archunitVersion },
+      {
+        type: "input",
+        name: "dockerBaseImage",
+        message: "Service Dockerfile native base image:",
+        default: d.dockerBaseImage
+      },
       {
         type: "confirm",
         name: "addWorkflows",
@@ -45,13 +56,20 @@ const registerPlatformGenerator = ({ plop, ctx, validators }) => {
           await fs.ensureDir(rootDir);
           if (await fs.pathExists(path.join(rootDir, "pom.xml"))) throw new Error(`pom.xml already exists: ${rootDir}`);
 
-          answers.enforcerVersion ||= "3.5.0";
-          answers.surefireVersion ||= "3.5.2";
-          answers.spotlessVersion ||= "2.44.3";
-          answers.checkstyleVersion ||= "3.6.0";
-          answers.spotbugsVersion ||= "4.8.6.6";
-          answers.archunitVersion ||= "1.3.0";
-          answers.mandrelBuilderImage ||= `quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java${answers.javaVersion || "21"}`;
+          answers.enforcerVersion ||= d.enforcerVersion;
+          answers.surefireVersion ||= d.surefireVersion;
+          answers.spotlessVersion ||= d.spotlessVersion;
+          answers.checkstyleVersion ||= d.checkstyleVersion;
+          answers.spotbugsVersion ||= d.spotbugsVersion;
+          answers.archunitVersion ||= d.archunitVersion;
+          answers.mavenMinVersion ||= d.mavenMinVersion;
+          answers.quarkusPlatformGroupId ||= d.quarkusPlatformGroupId;
+          answers.quarkusPlatformArtifactId ||= d.quarkusPlatformArtifactId;
+          answers.dockerBaseImage ||= d.dockerBaseImage;
+          answers.platformVersion ||= d.platformVersion;
+          answers.javaVersion ||= d.javaVersion;
+          answers.quarkusPlatformVersion ||= d.quarkusPlatformVersion;
+          answers.mandrelBuilderImage ||= d.mandrelBuilderImage.replace(/java\d+$/, `java${answers.javaVersion || d.javaVersion}`);
 
           return "OK";
         },
@@ -90,4 +108,3 @@ const registerPlatformGenerator = ({ plop, ctx, validators }) => {
 };
 
 module.exports = { registerPlatformGenerator };
-

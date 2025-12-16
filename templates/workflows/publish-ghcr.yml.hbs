@@ -14,7 +14,8 @@ permissions:
   packages: write
 
 env:
-  JAVA_VERSION: "21"
+  JAVA_VERSION: ${{ vars.JAVA_VERSION }}
+  MANDREL_BUILDER_IMAGE: ${{ vars.MANDREL_BUILDER_IMAGE }}
   MVN_ARGS: "-B -ntp -Dstyle.color=always"
   REGISTRY: ghcr.io
 
@@ -73,7 +74,7 @@ jobs:
             -DskipTests \
             -Dquarkus.package.type=native \
             -Dquarkus.native.container-build=true \
-            -Dquarkus.native.builder-image=quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java21 \
+            -Dquarkus.native.builder-image="${{ env.MANDREL_BUILDER_IMAGE }}" \
             package
 
       - name: Build & push image
@@ -83,11 +84,15 @@ jobs:
           SERVICE_LC=$(echo "$SERVICE_NAME" | tr '[:upper:]' '[:lower:]')
           IMAGE="${{ env.REGISTRY }}/${OWNER_LC}/${SERVICE_LC}"
 
+          TAGS="-t ${IMAGE}:${{ github.sha }}"
+          if [ -n "${{ vars.IMAGE_TAG_LATEST }}" ]; then
+            TAGS="$TAGS -t ${IMAGE}:${{ vars.IMAGE_TAG_LATEST }}"
+          fi
+
           docker buildx build --push \
             --cache-from type=local,src=/tmp/.buildx-cache \
             --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \
-            -t "${IMAGE}:${{ github.sha }}" \
-            -t "${IMAGE}:latest" \
+            $TAGS \
             -f "${{ matrix.service }}/src/main/docker/Dockerfile.native" \
             "${{ matrix.service }}"
 

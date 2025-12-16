@@ -18,9 +18,11 @@
     <java.version>{{javaVersion}}</java.version>
     <maven.compiler.release>${java.version}</maven.compiler.release>
 
-    <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
+    <quarkus.platform.group-id>{{quarkusPlatformGroupId}}</quarkus.platform.group-id>
+    <quarkus.platform.artifact-id>{{quarkusPlatformArtifactId}}</quarkus.platform.artifact-id>
     <quarkus.platform.version>{{quarkusPlatformVersion}}</quarkus.platform.version>
+
+    <maven.minimum.version>{{mavenMinVersion}}</maven.minimum.version>
 
     <enforcer.plugin.version>{{enforcerVersion}}</enforcer.plugin.version>
     <surefire.plugin.version>{{surefireVersion}}</surefire.plugin.version>

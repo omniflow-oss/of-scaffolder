@@ -2,8 +2,10 @@ const path = require("path");
 const fs = require("fs-extra");
 const { baseRepoPrompts, groupIdPrompt, basePackagePromptFor } = require("../scaffolder/prompts.cjs");
 const { toJavaPackageSafe } = require("../utils.cjs");
+const { defaults } = require("../scaffolder/defaults.cjs");
 
 const registerServiceGenerator = ({ plop, ctx, validators, utils }) => {
+  const d = defaults();
   plop.setGenerator("service", {
     description: "Create a new Quarkus service under services/<name>",
     prompts: [
@@ -90,6 +92,12 @@ const registerServiceGenerator = ({ plop, ctx, validators, utils }) => {
           }
           if (!Array.isArray(answers.quarkusExtensions)) {
             answers.quarkusExtensions = ctx.defaultServiceFlags(rootDir).quarkusExtensions;
+          }
+          if (!Array.isArray(answers.testDependencies)) {
+            answers.testDependencies = ctx.defaultServiceFlags(rootDir).testDependencies;
+          }
+          if (!answers.dockerBaseImage) {
+            answers.dockerBaseImage = ctx.defaultServiceFlags(rootDir).dockerBaseImage || d.dockerBaseImage;
           }
 
           const coords = await utils.readPomCoordinates(rootPomPath);

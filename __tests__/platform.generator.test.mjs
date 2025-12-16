@@ -19,6 +19,9 @@ test("platform generator bootstraps root + bom + platform-starter", async () => 
     platformArtifactId: "platform",
     platformVersion: "1.0.0-SNAPSHOT",
     javaVersion: "21",
+    mavenMinVersion: "3.9.0",
+    quarkusPlatformGroupId: "io.quarkus.platform",
+    quarkusPlatformArtifactId: "quarkus-bom",
     quarkusPlatformVersion: "3.19.1",
     mandrelBuilderImage: "quay.io/quarkus/ubi-quarkus-mandrel-builder-image:23.1-java21",
     enforcerVersion: "3.5.0",
@@ -27,6 +30,7 @@ test("platform generator bootstraps root + bom + platform-starter", async () => 
     checkstyleVersion: "3.6.0",
     spotbugsVersion: "4.8.6.6",
     archunitVersion: "1.3.0",
+    dockerBaseImage: "registry.access.redhat.com/ubi9/ubi-minimal:9.5",
     addWorkflows: false
   });
 

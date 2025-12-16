@@ -36,7 +36,7 @@
               <goals><goal>enforce</goal></goals>
               <configuration>
                 <rules>
-                  <requireMavenVersion><version>[3.9.0,)</version></requireMavenVersion>
+                  <requireMavenVersion><version>[${maven.minimum.version},)</version></requireMavenVersion>
                   <requireJavaVersion><version>[{{javaVersion}},)</version></requireJavaVersion>
                   <dependencyConvergence/>
                   <banDuplicatePomDependencyVersions/>

@@ -116,6 +116,11 @@ Safety: refuses to run if `pom.xml` already exists in the target `rootDir`.
 
 The platform generator writes versions into the root `pom.xml` as properties (Java, Quarkus platform, Mandrel builder image, and quality tool/plugin versions), and also records them in `.platform-scaffolder.json` under `versions` for generator defaults.
 
+Generated CI workflows expect GitHub repository variables:
+
+- `JAVA_VERSION`
+- `MANDREL_BUILDER_IMAGE`
+
 ### Prompts (service)
 
 - `rootDir`: repo root directory (absolute or relative to this scaffolder)

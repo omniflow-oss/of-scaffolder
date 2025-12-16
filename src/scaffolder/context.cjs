@@ -46,7 +46,9 @@ const createContext = ({ plopfileDir }) => {
       addWorkflows: cfg?.defaults?.service?.addWorkflows ?? false,
       registerInRootPom: cfg?.defaults?.service?.registerInRootPom ?? true,
       internalLibs: Array.isArray(cfg?.defaults?.service?.internalLibs) ? cfg.defaults.service.internalLibs : [],
-      quarkusExtensions: Array.isArray(cfg?.defaults?.service?.quarkusExtensions) ? cfg.defaults.service.quarkusExtensions : []
+      dockerBaseImage: cfg?.defaults?.service?.dockerBaseImage,
+      quarkusExtensions: Array.isArray(cfg?.defaults?.service?.quarkusExtensions) ? cfg.defaults.service.quarkusExtensions : [],
+      testDependencies: Array.isArray(cfg?.defaults?.service?.testDependencies) ? cfg.defaults.service.testDependencies : []
     };
   };
 

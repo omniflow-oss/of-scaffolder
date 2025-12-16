@@ -54,7 +54,13 @@ const createFakeRepo = async () => {
     defaults: {
       service: {
         internalLibs: ["shared-kernel"],
-        quarkusExtensions: ["quarkus-rest", "quarkus-rest-jackson", "quarkus-hibernate-validator", "quarkus-smallrye-health"]
+        dockerBaseImage: "registry.access.redhat.com/ubi9/ubi-minimal:9.5",
+        quarkusExtensions: ["quarkus-rest", "quarkus-rest-jackson", "quarkus-hibernate-validator", "quarkus-smallrye-health"],
+        testDependencies: [
+          { groupId: "io.quarkus", artifactId: "quarkus-junit5", scope: "test" },
+          { groupId: "io.rest-assured", artifactId: "rest-assured", scope: "test" },
+          { groupId: "com.tngtech.archunit", artifactId: "archunit-junit5", version: "${archunit.version}", scope: "test" }
+        ]
       }
     }
   });
@@ -90,7 +96,7 @@ test("service generator creates full service skeleton", async () => {
   expect(pom).toContain("<artifactId>shared-kernel</artifactId>");
 
   const dockerfile = await fs.readFile(path.join(svcDir, "src/main/docker/Dockerfile.native"), "utf8");
-  expect(dockerfile).toContain("ubi-minimal");
+  expect(dockerfile).toContain("registry.access.redhat.com/ubi9/ubi-minimal:9.5");
   expect(dockerfile).toContain('ENTRYPOINT ["/work/application"');
 
   const resource = await fs.readFile(path.join(svcDir, "src/main/java/com/acme/bff/api/ProfileResource.java"), "utf8");
