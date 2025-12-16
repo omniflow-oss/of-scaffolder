@@ -6,6 +6,7 @@ Plop-based scaffolder that generates:
 - A Quarkus **service module** under `services/<serviceName>`
 - A Java **library module** under `libs/<libName>`
 - Golden-path building blocks inside services: `connector`, `feature`, `endpoint`, `projection`
+- A feature-local in-memory **EventBus** skeleton: `eventbus`
 - Optional GitHub Actions workflows (CI + GHCR publish) under `.github/workflows/` (only if absent)
 
 It is designed for a Maven “platform” repo layout (root `pom.xml` at the repo root) and refuses to overwrite existing modules.
@@ -15,6 +16,57 @@ It is designed for a Maven “platform” repo layout (root `pom.xml` at the rep
 - Node.js 18+ (tested with Node 20)
 - npm
 - A target repo with a root `pom.xml` (used to validate `rootDir`)
+
+## How to use (quickstart)
+
+### 1) Bootstrap a new platform repo
+
+From an empty directory:
+
+```bash
+npx @ofcx/of-scaffolder platform
+```
+
+This generates:
+
+- `pom.xml`, `bom/pom.xml`, `platform-starter/pom.xml`
+- `.platform-scaffolder.json` (all defaults used by generators)
+- `services/` and `libs/`
+- `config/checkstyle/checkstyle.xml` + `config/spotbugs/exclude.xml`
+- optional `.github/workflows/*` if you enable it
+
+### 2) Generate a library
+
+```bash
+npx @ofcx/of-scaffolder lib
+```
+
+Recommended: keep internal libs versioned via the BOM by answering “yes” to `registerInBom`.
+
+### 3) Generate a service
+
+```bash
+npx @ofcx/of-scaffolder service
+```
+
+The service generator reads `.platform-scaffolder.json` for defaults:
+
+- Quarkus extensions (`defaults.service.quarkusExtensions`)
+- Service test deps (`defaults.service.testDependencies`)
+- Docker base image (`defaults.service.dockerBaseImage`)
+- Internal libs to autowire (`defaults.service.internalLibs`)
+
+### 4) Add paved-road building blocks to an existing service
+
+Run from anywhere inside your repo and point `rootDir` to the repo root when asked.
+
+```bash
+npx @ofcx/of-scaffolder connector
+npx @ofcx/of-scaffolder feature
+npx @ofcx/of-scaffolder endpoint
+npx @ofcx/of-scaffolder projection
+npx @ofcx/of-scaffolder eventbus
+```
 
 ## Install
 
@@ -121,6 +173,10 @@ Generated CI workflows expect GitHub repository variables:
 - `JAVA_VERSION`
 - `MANDREL_BUILDER_IMAGE`
 
+Publish to GHCR workflow variables (optional):
+
+- `IMAGE_TAG_LATEST` (set to `latest` if you want a “latest” tag; otherwise only SHA tags are pushed)
+
 ### Prompts (service)
 
 - `rootDir`: repo root directory (absolute or relative to this scaffolder)
@@ -181,6 +237,7 @@ You can also choose interactively (it will suggest libs discovered under `libs/*
 Generated service POMs are driven by `.platform-scaffolder.json`:
 
 - `.platform-scaffolder.json` → `defaults.service.quarkusExtensions` controls which `io.quarkus:*` dependencies are added.
+- `.platform-scaffolder.json` → `defaults.service.testDependencies` controls test dependencies (Quarkus test, RestAssured, ArchUnit, etc.).
 
 ## Idempotent edits
 
@@ -200,6 +257,16 @@ Generated repos include a `quality` Maven profile (in `platform-starter/pom.xml`
 - SpotBugs
 
 Generated services include an ArchUnit test (`ArchitectureTest`) enforcing layer boundaries.
+
+## Environment defaults (this repo)
+
+When running the `platform` generator, prompt defaults can be overridden via environment variables (useful in CI):
+
+- `OFCX_QUARKUS_PLATFORM_VERSION`
+- `OFCX_JAVA_VERSION`
+- `OFCX_MANDREL_BUILDER_IMAGE`
+- `OFCX_DOCKER_BASE_IMAGE`
+- `OFCX_MAVEN_MIN_VERSION`
 
 ## Safety / validation
 
