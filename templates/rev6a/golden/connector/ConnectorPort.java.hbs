@@ -1,0 +1,8 @@
+package {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.domain.port;
+
+import io.smallrye.mutiny.Uni;
+
+public interface {{connectorPascal}}ClientPort {
+  Uni<String> call(String request);
+}
+

@@ -1,0 +1,15 @@
+package {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.infrastructure.persistence;
+
+import {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.domain.port.{{projectionPascal}}ProjectionRepositoryPort;
+import {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.domain.projection.{{projectionPascal}}Projection;
+import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+
+@ApplicationScoped
+public class {{projectionPascal}}ProjectionRepositoryAdapter implements {{projectionPascal}}ProjectionRepositoryPort {
+  @Override
+  public Uni<{{projectionPascal}}Projection> getById(String id) {
+    return Uni.createFrom().item(new {{projectionPascal}}Projection(id));
+  }
+}
+

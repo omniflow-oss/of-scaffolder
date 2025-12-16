@@ -69,6 +69,10 @@ npx @ofcx/of-scaffolder eventbus
 npx @ofcx/of-scaffolder service6a
 npx @ofcx/of-scaffolder usecase6a
 npx @ofcx/of-scaffolder eventbus6a
+npx @ofcx/of-scaffolder feature6a
+npx @ofcx/of-scaffolder endpoint6a
+npx @ofcx/of-scaffolder connector6a
+npx @ofcx/of-scaffolder projection6a
 ```
 
 ## Install

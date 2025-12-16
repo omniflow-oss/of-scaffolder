@@ -56,6 +56,40 @@ it("maven clean verify succeeds on generated repo", async () => {
     internalLibs: ["shared-kernel"]
   });
 
+  await plop.getGenerator("service6a").runActions({
+    rootDir: repoRoot,
+    serviceName: "rev6a-identity",
+    groupId: "com.acme",
+    rootPackage: "com.acme.rev6aidentity",
+    registerInRootPom: true
+  });
+
+  await plop.getGenerator("usecase6a").runActions({
+    rootDir: repoRoot,
+    serviceName: "rev6a-identity",
+    rootPackage: "com.acme.rev6aidentity",
+    moduleName: "profile",
+    usecaseName: "getprofile"
+  });
+
+  await plop.getGenerator("connector6a").runActions({
+    rootDir: repoRoot,
+    serviceName: "rev6a-identity",
+    rootPackage: "com.acme.rev6aidentity",
+    moduleName: "profile",
+    usecaseName: "getprofile",
+    connectorName: "salesforce"
+  });
+
+  await plop.getGenerator("projection6a").runActions({
+    rootDir: repoRoot,
+    serviceName: "rev6a-identity",
+    rootPackage: "com.acme.rev6aidentity",
+    moduleName: "profile",
+    usecaseName: "getprofile",
+    projectionName: "customer"
+  });
+
   await fs.ensureDir(localRepo);
 
   await run(
