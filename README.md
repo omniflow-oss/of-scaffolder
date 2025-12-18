@@ -47,7 +47,7 @@ Recommended: keep internal libs versioned via the BOM by answering “yes” to 
 npx @ofcx/of-scaffolder usecase
 ```
 
-The `usecase` generator bootstraps (idempotent) the Rev6A `boot/` + `shared/` skeleton inside the service and ensures baseline Quarkus/test dependencies are present in `services/<serviceName>/pom.xml` (from `.platform-scaffolder.json`).
+The `usecase` generator bootstraps (idempotent) the Rev6A `boot/` skeleton inside the service, and ensures baseline Quarkus + platform-core dependencies are present in `services/<serviceName>/pom.xml` (from `.platform-scaffolder.json`).
 
 ### 4) Add paved-road building blocks to an existing service
 
@@ -165,7 +165,7 @@ Publish to GHCR workflow variables (optional):
 
 ### Prompts (usecase/modules/eventbus)
 
-These generators operate on an existing service under `services/<serviceName>` (must contain `pom.xml`).
+`usecase` will create `services/<serviceName>/pom.xml` if it does not exist yet (and will register the module in the root `pom.xml`). `modules` and `eventbus` expect the service `pom.xml` to exist.
 
 ### Prompts (lib)
 
@@ -182,7 +182,7 @@ These generators operate on an existing service under `services/<serviceName>` (
 
 - `modules`: creates `src/main/java/<rootPackage>/module/<module>/.gitkeep`
 - `usecase`: creates the canonical usecase tree under `src/main/java/<rootPackage>/module/<module>/<usecase>usecase/...`
-- `usecase`: bootstraps (if absent) `boot/`, `shared/contract`, `shared/infrastructure`, and `src/test/.../Rev6AArchitectureTest.java`
+- `usecase`: bootstraps (if absent) `boot/` and `src/test/.../Rev6AArchitectureTest.java`
 - `usecase`: ensures baseline Quarkus/test dependencies exist in `services/<serviceName>/pom.xml` (from `.platform-scaffolder.json`)
 
 ### Lib (`libs/<libName>`)
@@ -246,7 +246,8 @@ When running the `platform` generator, prompt defaults can be overridden via env
 
 ## Safety / validation
 
-- Will error if `services/<serviceName>/pom.xml` is missing (for `modules`/`usecase`/`eventbus`).
+- `usecase` will create `services/<serviceName>/pom.xml` if missing.
+- `modules`/`eventbus` will error if `services/<serviceName>/pom.xml` is missing.
 - Will error if `libs/<libName>/pom.xml` already exists.
 - Enforces kebab-case for `serviceName`/`libName`.
 - Validates `rootDir` by requiring a `pom.xml` at that path.

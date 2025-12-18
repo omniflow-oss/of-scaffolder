@@ -7,7 +7,32 @@ const registerUseCaseGenerator = ({ plop, ctx, validators, utils }) => {
     prompts: [
       { type: "input", name: "rootDir", message: "Repo root directory:", default: "../..", validate: validators.validateRootPath },
       { type: "input", name: "serviceName", message: "Existing service name under services/:", validate: validators.validateArtifactId },
-      { type: "input", name: "rootPackage", message: "Root Java package (service), e.g. com.yourcompany.yourapp:", validate: validators.validateJavaPackage },
+      {
+        type: "input",
+        name: "rootPackage",
+        message: "Root Java package (service), e.g. com.yourcompany.yourapp:",
+        validate: validators.validateJavaPackage,
+        default: (a) => {
+          try {
+            const rootDir = path.resolve(process.cwd(), a.rootDir || ".");
+            const svcPom = path.join(rootDir, "services", a.serviceName || "", "pom.xml");
+            if (fs.pathExistsSync(svcPom)) {
+              const xml = fs.readFileSync(svcPom, "utf8");
+              const fromPom = xml.match(/<root\.package>\s*([^<\s]+)\s*<\/root\.package>/)?.[1];
+              if (fromPom) return fromPom;
+            }
+            const rootPom = path.join(rootDir, "pom.xml");
+            if (fs.pathExistsSync(rootPom)) {
+              const xml = fs.readFileSync(rootPom, "utf8");
+              const groupId = xml.match(/<groupId>\s*([^<\s]+)\s*<\/groupId>/)?.[1];
+              if (groupId && a.serviceName) return `${groupId}.${utils.toJavaPackageSafe(a.serviceName)}`;
+            }
+            return "";
+          } catch {
+            return "";
+          }
+        }
+      },
       { type: "input", name: "moduleName", message: "Module name (package), e.g. identity, profile:", validate: validators.validateJavaIdentifier },
       { type: "input", name: "usecaseName", message: "Usecase name (kebab/word), e.g. login, issueotp:", validate: validators.validateJavaIdentifier }
     ],
@@ -17,6 +42,7 @@ const registerUseCaseGenerator = ({ plop, ctx, validators, utils }) => {
       const svcPomPath = path.join(svcDir, "pom.xml");
       const javaRoot = path.join(svcDir, "src/main/java", utils.javaPackageToPath(answers.rootPackage));
       const testJavaRoot = path.join(svcDir, "src/test/java", utils.javaPackageToPath(answers.rootPackage));
+      const rootPomPath = path.join(rootDir, "pom.xml");
 
       answers.usecasePascal = utils.toPascalCase(answers.usecaseName);
       answers.usecaseKebab = utils.toKebab(answers.usecaseName);
@@ -46,6 +72,10 @@ const registerUseCaseGenerator = ({ plop, ctx, validators, utils }) => {
 
       const ensureUsecasePomDeps = async () => {
         const cfg = ctx.readRepoConfigSync(rootDir);
+        answers.corePackage = cfg?.core?.package;
+        if (!answers.corePackage) {
+          throw new Error(`Missing core.package in ${path.join(rootDir, ".platform-scaffolder.json")}`);
+        }
         const deps = cfg?.defaults?.usecase?.pom?.dependencies;
         const testDeps = cfg?.defaults?.usecase?.pom?.testDependencies;
         if (!Array.isArray(deps) || deps.length === 0) {
@@ -79,7 +109,57 @@ const registerUseCaseGenerator = ({ plop, ctx, validators, utils }) => {
 
       return [
         async () => {
-          if (!(await fs.pathExists(svcPomPath))) throw new Error(`Service not found: ${svcDir}`);
+          await fs.ensureDir(svcDir);
+
+          if (!(await fs.pathExists(svcPomPath))) {
+            const coords = await utils.readPomCoordinates(rootPomPath);
+            if (!coords.groupId || !coords.version) {
+              throw new Error(`Could not determine groupId/version from root pom.xml: ${rootPomPath}`);
+            }
+
+            const pom = [
+              '<project xmlns="http://maven.apache.org/POM/4.0.0">',
+              "  <modelVersion>4.0.0</modelVersion>",
+              "",
+              "  <parent>",
+              `    <groupId>${coords.groupId}</groupId>`,
+              "    <artifactId>platform-starter</artifactId>",
+              `    <version>${coords.version}</version>`,
+              "    <relativePath>../../platform-starter/pom.xml</relativePath>",
+              "  </parent>",
+              "",
+              `  <artifactId>${answers.serviceName}</artifactId>`,
+              "",
+              "  <properties>",
+              `    <root.package>${answers.rootPackage}</root.package>`,
+              "  </properties>",
+              "",
+              "  <dependencies>",
+              "  </dependencies>",
+              "",
+              "  <build>",
+              "    <plugins>",
+              "      <plugin>",
+              "        <groupId>io.quarkus</groupId>",
+              "        <artifactId>quarkus-maven-plugin</artifactId>",
+              "        <executions>",
+              "          <execution>",
+              "            <goals>",
+              "              <goal>build</goal>",
+              "              <goal>generate-code</goal>",
+              "              <goal>generate-code-tests</goal>",
+              "            </goals>",
+              "          </execution>",
+              "        </executions>",
+              "      </plugin>",
+              "    </plugins>",
+              "  </build>",
+              "</project>",
+              ""
+            ].join("\n");
+            await fs.outputFile(svcPomPath, pom);
+            await utils.insertModuleIfMissing(rootPomPath, path.posix.join("services", answers.serviceName));
+          }
           return "OK";
         },
 
@@ -87,23 +167,6 @@ const registerUseCaseGenerator = ({ plop, ctx, validators, utils }) => {
 
         async () => writeTemplateIfAbsent(path.join(javaRoot, "boot/Application.java"), ctx.template("rev6a", "boot", "Application.java.hbs")).then(() => "Bootstrapped boot/Application (if absent)"),
         async () => writeTemplateIfAbsent(path.join(javaRoot, "boot/Wiring.java"), ctx.template("rev6a", "boot", "Wiring.java.hbs")).then(() => "Bootstrapped boot/Wiring (if absent)"),
-
-        async () => writeTemplateIfAbsent(path.join(javaRoot, "shared/contract/result/Result.java"), ctx.template("rev6a", "shared", "contract", "result", "Result.java.hbs")).then(() => "Bootstrapped shared Result (if absent)"),
-        async () => writeTemplateIfAbsent(path.join(javaRoot, "shared/contract/result/Success.java"), ctx.template("rev6a", "shared", "contract", "result", "Success.java.hbs")).then(() => "Bootstrapped shared Success (if absent)"),
-        async () => writeTemplateIfAbsent(path.join(javaRoot, "shared/contract/result/Failure.java"), ctx.template("rev6a", "shared", "contract", "result", "Failure.java.hbs")).then(() => "Bootstrapped shared Failure (if absent)"),
-
-        async () => writeTemplateIfAbsent(path.join(javaRoot, "shared/contract/error/Error.java"), ctx.template("rev6a", "shared", "contract", "error", "Error.java.hbs")).then(() => "Bootstrapped shared Error (if absent)"),
-        async () => writeTemplateIfAbsent(path.join(javaRoot, "shared/contract/error/ErrorCategory.java"), ctx.template("rev6a", "shared", "contract", "error", "ErrorCategory.java.hbs")).then(() => "Bootstrapped shared ErrorCategory (if absent)"),
-        async () => writeTemplateIfAbsent(path.join(javaRoot, "shared/contract/error/ErrorDetails.java"), ctx.template("rev6a", "shared", "contract", "error", "ErrorDetails.java.hbs")).then(() => "Bootstrapped shared ErrorDetails (if absent)"),
-
-        async () => writeTemplateIfAbsent(path.join(javaRoot, "shared/infrastructure/http/ResultHttpRenderer.java"), ctx.template("rev6a", "shared", "infrastructure", "http", "ResultHttpRenderer.java.hbs")).then(() => "Bootstrapped ResultHttpRenderer (if absent)"),
-        async () => writeTemplateIfAbsent(path.join(javaRoot, "shared/infrastructure/http/GlobalThrowableRenderer.java"), ctx.template("rev6a", "shared", "infrastructure", "http", "GlobalThrowableRenderer.java.hbs")).then(() => "Bootstrapped GlobalThrowableRenderer (if absent)"),
-        async () => writeTemplateIfAbsent(path.join(javaRoot, "shared/infrastructure/http/CorrelationIdFilter.java"), ctx.template("rev6a", "shared", "infrastructure", "http", "CorrelationIdFilter.java.hbs")).then(() => "Bootstrapped CorrelationIdFilter (if absent)"),
-        async () => writeTemplateIfAbsent(path.join(javaRoot, "shared/infrastructure/http/ValidationErrorRenderer.java"), ctx.template("rev6a", "shared", "infrastructure", "http", "ValidationErrorRenderer.java.hbs")).then(() => "Bootstrapped ValidationErrorRenderer (if absent)"),
-
-        async () => writeTemplateIfAbsent(path.join(javaRoot, "shared/infrastructure/strategy/NamedStrategy.java"), ctx.template("rev6a", "shared", "infrastructure", "strategy", "NamedStrategy.java.hbs")).then(() => "Bootstrapped NamedStrategy (if absent)"),
-        async () => writeTemplateIfAbsent(path.join(javaRoot, "shared/infrastructure/strategy/StrategyNotFoundError.java"), ctx.template("rev6a", "shared", "infrastructure", "strategy", "StrategyNotFoundError.java.hbs")).then(() => "Bootstrapped StrategyNotFoundError (if absent)"),
-        async () => writeTemplateIfAbsent(path.join(javaRoot, "shared/infrastructure/strategy/StrategySelectorSupport.java"), ctx.template("rev6a", "shared", "infrastructure", "strategy", "StrategySelectorSupport.java.hbs")).then(() => "Bootstrapped StrategySelectorSupport (if absent)"),
 
         async () => writeTemplateIfAbsent(path.join(testJavaRoot, "Rev6AArchitectureTest.java"), ctx.template("rev6a", "test", "Rev6AArchitectureTest.java.hbs")).then(() => "Bootstrapped Rev6AArchitectureTest (if absent)"),
 

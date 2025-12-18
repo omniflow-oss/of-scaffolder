@@ -3,6 +3,14 @@
   "groupId": "{{groupId}}",
   "platformArtifactId": "{{platformArtifactId}}",
   "platformVersion": "{{platformVersion}}",
+  "core": {
+    "package": "{{groupId}}.platform.core",
+    "artifacts": {
+      "contract": "platform-core-contract",
+      "infrastructure": "platform-core-infrastructure",
+      "eventbusInMemory": "platform-core-eventbus-inmemory"
+    }
+  },
   "versions": {
     "java": "{{javaVersion}}",
     "quarkusPlatform": "{{quarkusPlatformVersion}}",
@@ -21,6 +29,8 @@
     "usecase": {
       "pom": {
         "dependencies": [
+          { "groupId": "{{groupId}}", "artifactId": "platform-core-contract" },
+          { "groupId": "{{groupId}}", "artifactId": "platform-core-infrastructure" },
           { "groupId": "io.quarkus", "artifactId": "quarkus-rest" },
           { "groupId": "io.quarkus", "artifactId": "quarkus-rest-jackson" },
           { "groupId": "io.quarkus", "artifactId": "quarkus-hibernate-validator" },

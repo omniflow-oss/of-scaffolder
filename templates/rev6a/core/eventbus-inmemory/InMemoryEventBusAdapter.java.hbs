@@ -1,7 +1,7 @@
-package {{rootPackage}}.shared.infrastructure.eventbus.inmemory;
+package {{corePackage}}.infrastructure.eventbus.inmemory;
 
-import {{rootPackage}}.shared.contract.event.EventEnvelope;
-import {{rootPackage}}.shared.contract.event.EventPublisherPort;
+import {{corePackage}}.contract.event.EventEnvelope;
+import {{corePackage}}.contract.event.EventPublisherPort;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Queue;
@@ -9,7 +9,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 @ApplicationScoped
 public class InMemoryEventBusAdapter implements EventPublisherPort {
-
   private static final Queue<EventEnvelope> BUS = new ConcurrentLinkedQueue<>();
 
   @Override

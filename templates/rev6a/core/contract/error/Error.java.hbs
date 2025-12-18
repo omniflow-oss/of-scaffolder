@@ -1,4 +1,4 @@
-package {{rootPackage}}.shared.contract.error;
+package {{corePackage}}.contract.error;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
@@ -12,3 +12,4 @@ public record Error(
     @JsonProperty("correlation_id") String correlationId,
     @JsonProperty("timestamp") Instant timestamp
 ) {}
+

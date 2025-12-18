@@ -1,0 +1,20 @@
+package {{corePackage}}.infrastructure.http;
+
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.ext.Provider;
+import java.util.Optional;
+import java.util.UUID;
+import org.jboss.logging.MDC;
+
+@Provider
+public class CorrelationIdFilter implements ContainerRequestFilter {
+  @Override
+  public void filter(ContainerRequestContext requestContext) {
+    final String correlationId = Optional.ofNullable(requestContext.getHeaderString("x-correlation-id"))
+        .filter(s -> !s.isBlank())
+        .orElse(UUID.randomUUID().toString());
+    MDC.put("correlation_id", correlationId);
+  }
+}
+

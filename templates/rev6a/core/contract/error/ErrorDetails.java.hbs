@@ -1,4 +1,4 @@
-package {{rootPackage}}.shared.contract.error;
+package {{corePackage}}.contract.error;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -8,3 +8,4 @@ public record ErrorDetails(
     @JsonProperty("message") String message,
     @JsonProperty("rejected_value") String rejectedValue
 ) {}
+

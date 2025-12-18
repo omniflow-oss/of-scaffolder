@@ -1,0 +1,6 @@
+package {{corePackage}}.contract.result;
+
+import {{corePackage}}.contract.error.Error;
+
+public record Failure<T>(Error error) implements Result<T> {}
+

@@ -28,7 +28,8 @@ test("platform generator can add workflows (only if absent)", async () => {
     checkstyleVersion: "3.6.0",
     spotbugsVersion: "4.8.6.6",
     archunitVersion: "1.3.0",
-    addWorkflows: true
+    addWorkflows: true,
+    addPlatformCore: true
   });
 
   expect(res.failures).toHaveLength(0);
@@ -44,4 +45,3 @@ test("platform generator can add workflows (only if absent)", async () => {
   expect(ciTxt).toContain("pull_request");
   expect(ciTxt).toContain("services_json");
 });
-

@@ -2,7 +2,7 @@ const path = require("path");
 const fs = require("fs-extra");
 const { defaults } = require("../scaffolder/defaults.cjs");
 
-const registerPlatformGenerator = ({ plop, ctx, validators }) => {
+const registerPlatformGenerator = ({ plop, ctx, validators, utils }) => {
   const d = defaults();
   plop.setGenerator("platform", {
     description: "Bootstrap a new platform repo (root + bom + platform-starter + base folders)",
@@ -39,13 +39,26 @@ const registerPlatformGenerator = ({ plop, ctx, validators }) => {
         name: "addWorkflows",
         message: "Add GitHub Actions workflows (.github/workflows/ci.yml + publish-ghcr.yml)?",
         default: true
+      },
+      {
+        type: "confirm",
+        name: "addPlatformCore",
+        message: "Add platform-core libs (contract + infrastructure + eventbus-inmemory)?",
+        default: true
       }
     ],
     actions: function (answers) {
       const rootDir = path.resolve(process.cwd(), answers.rootDir);
       const wfDir = path.join(rootDir, ".github", "workflows");
+      const bomPomPath = path.join(rootDir, "bom", "pom.xml");
+      const rootPomPath = path.join(rootDir, "pom.xml");
 
-      return [
+      answers.corePackage ||= answers.groupId ? `${answers.groupId}.platform.core` : undefined;
+      answers.coreContractArtifactId ||= "platform-core-contract";
+      answers.coreInfrastructureArtifactId ||= "platform-core-infrastructure";
+      answers.coreEventbusInMemoryArtifactId ||= "platform-core-eventbus-inmemory";
+
+      const actions = [
         async () => {
           await fs.ensureDir(rootDir);
           if (await fs.pathExists(path.join(rootDir, "pom.xml"))) throw new Error(`pom.xml already exists: ${rootDir}`);
@@ -96,6 +109,51 @@ const registerPlatformGenerator = ({ plop, ctx, validators }) => {
           return "Added workflows (if absent)";
         }
       ];
+
+      if (answers.addPlatformCore) {
+        const contractDir = path.join(rootDir, "libs", answers.coreContractArtifactId);
+        const infraDir = path.join(rootDir, "libs", answers.coreInfrastructureArtifactId);
+        const ebDir = path.join(rootDir, "libs", answers.coreEventbusInMemoryArtifactId);
+
+        actions.push(
+          { type: "add", path: path.join(contractDir, "pom.xml"), templateFile: ctx.template("rev6a", "core", "contract", "pom.xml.hbs") },
+          { type: "add", path: path.join(contractDir, "src/main/java/{{javaPackagePath corePackage}}/contract/result/Result.java"), templateFile: ctx.template("rev6a", "core", "contract", "result", "Result.java.hbs") },
+          { type: "add", path: path.join(contractDir, "src/main/java/{{javaPackagePath corePackage}}/contract/result/Success.java"), templateFile: ctx.template("rev6a", "core", "contract", "result", "Success.java.hbs") },
+          { type: "add", path: path.join(contractDir, "src/main/java/{{javaPackagePath corePackage}}/contract/result/Failure.java"), templateFile: ctx.template("rev6a", "core", "contract", "result", "Failure.java.hbs") },
+          { type: "add", path: path.join(contractDir, "src/main/java/{{javaPackagePath corePackage}}/contract/error/ErrorCategory.java"), templateFile: ctx.template("rev6a", "core", "contract", "error", "ErrorCategory.java.hbs") },
+          { type: "add", path: path.join(contractDir, "src/main/java/{{javaPackagePath corePackage}}/contract/error/ErrorDetails.java"), templateFile: ctx.template("rev6a", "core", "contract", "error", "ErrorDetails.java.hbs") },
+          { type: "add", path: path.join(contractDir, "src/main/java/{{javaPackagePath corePackage}}/contract/error/Error.java"), templateFile: ctx.template("rev6a", "core", "contract", "error", "Error.java.hbs") },
+          { type: "add", path: path.join(contractDir, "src/main/java/{{javaPackagePath corePackage}}/contract/event/EventMetadata.java"), templateFile: ctx.template("rev6a", "core", "contract", "event", "EventMetadata.java.hbs") },
+          { type: "add", path: path.join(contractDir, "src/main/java/{{javaPackagePath corePackage}}/contract/event/EventEnvelope.java"), templateFile: ctx.template("rev6a", "core", "contract", "event", "EventEnvelope.java.hbs") },
+          { type: "add", path: path.join(contractDir, "src/main/java/{{javaPackagePath corePackage}}/contract/event/EventPublisherPort.java"), templateFile: ctx.template("rev6a", "core", "contract", "event", "EventPublisherPort.java.hbs") },
+          { type: "add", path: path.join(contractDir, "src/main/java/{{javaPackagePath corePackage}}/contract/event/EventSubscriberPort.java"), templateFile: ctx.template("rev6a", "core", "contract", "event", "EventSubscriberPort.java.hbs") },
+
+          { type: "add", path: path.join(infraDir, "pom.xml"), templateFile: ctx.template("rev6a", "core", "infrastructure", "pom.xml.hbs") },
+          { type: "add", path: path.join(infraDir, "src/main/java/{{javaPackagePath corePackage}}/infrastructure/http/ResultHttpRenderer.java"), templateFile: ctx.template("rev6a", "core", "infrastructure", "http", "ResultHttpRenderer.java.hbs") },
+          { type: "add", path: path.join(infraDir, "src/main/java/{{javaPackagePath corePackage}}/infrastructure/http/CorrelationIdFilter.java"), templateFile: ctx.template("rev6a", "core", "infrastructure", "http", "CorrelationIdFilter.java.hbs") },
+          { type: "add", path: path.join(infraDir, "src/main/java/{{javaPackagePath corePackage}}/infrastructure/http/GlobalThrowableRenderer.java"), templateFile: ctx.template("rev6a", "core", "infrastructure", "http", "GlobalThrowableRenderer.java.hbs") },
+          { type: "add", path: path.join(infraDir, "src/main/java/{{javaPackagePath corePackage}}/infrastructure/http/ValidationErrorRenderer.java"), templateFile: ctx.template("rev6a", "core", "infrastructure", "http", "ValidationErrorRenderer.java.hbs") },
+          { type: "add", path: path.join(infraDir, "src/main/java/{{javaPackagePath corePackage}}/infrastructure/strategy/NamedStrategy.java"), templateFile: ctx.template("rev6a", "core", "infrastructure", "strategy", "NamedStrategy.java.hbs") },
+          { type: "add", path: path.join(infraDir, "src/main/java/{{javaPackagePath corePackage}}/infrastructure/strategy/StrategyNotFoundError.java"), templateFile: ctx.template("rev6a", "core", "infrastructure", "strategy", "StrategyNotFoundError.java.hbs") },
+          { type: "add", path: path.join(infraDir, "src/main/java/{{javaPackagePath corePackage}}/infrastructure/strategy/StrategySelectorSupport.java"), templateFile: ctx.template("rev6a", "core", "infrastructure", "strategy", "StrategySelectorSupport.java.hbs") },
+
+          { type: "add", path: path.join(ebDir, "pom.xml"), templateFile: ctx.template("rev6a", "core", "eventbus-inmemory", "pom.xml.hbs") },
+          { type: "add", path: path.join(ebDir, "src/main/java/{{javaPackagePath corePackage}}/infrastructure/eventbus/inmemory/InMemoryEventBusAdapter.java"), templateFile: ctx.template("rev6a", "core", "eventbus-inmemory", "InMemoryEventBusAdapter.java.hbs") },
+
+          async () => {
+            // After files exist, register modules + BOM entries idempotently
+            await utils.insertModuleIfMissing(rootPomPath, path.posix.join("libs", answers.coreContractArtifactId));
+            await utils.insertModuleIfMissing(rootPomPath, path.posix.join("libs", answers.coreInfrastructureArtifactId));
+            await utils.insertModuleIfMissing(rootPomPath, path.posix.join("libs", answers.coreEventbusInMemoryArtifactId));
+            await utils.insertBomDependencyIfMissing({ bomPomPath: bomPomPath, groupId: answers.groupId, artifactId: answers.coreContractArtifactId, versionExpr: "${project.version}" });
+            await utils.insertBomDependencyIfMissing({ bomPomPath: bomPomPath, groupId: answers.groupId, artifactId: answers.coreInfrastructureArtifactId, versionExpr: "${project.version}" });
+            await utils.insertBomDependencyIfMissing({ bomPomPath: bomPomPath, groupId: answers.groupId, artifactId: answers.coreEventbusInMemoryArtifactId, versionExpr: "${project.version}" });
+            return "Registered platform-core modules and BOM deps";
+          }
+        );
+      }
+
+      return actions;
     }
   });
 };

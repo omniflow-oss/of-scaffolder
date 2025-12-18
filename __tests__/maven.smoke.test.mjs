@@ -35,7 +35,8 @@ it("maven clean verify succeeds on generated repo", async () => {
     platformVersion: "1.0.0-SNAPSHOT",
     javaVersion: "21",
     quarkusPlatformVersion: "3.19.1",
-    addWorkflows: false
+    addWorkflows: false,
+    addPlatformCore: true
   });
 
   await plop.getGenerator("lib").runActions({

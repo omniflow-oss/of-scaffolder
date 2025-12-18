@@ -1,7 +1,6 @@
-package {{rootPackage}}.shared.infrastructure.strategy;
+package {{corePackage}}.infrastructure.strategy;
 
 public class StrategyNotFoundError extends RuntimeException {
-
   public StrategyNotFoundError(Class<?> type, String name) {
     super("No strategy found for type=" + type.getName() + " name=" + name);
   }

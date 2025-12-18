@@ -47,7 +47,8 @@ test("modules generator creates module container", async () => {
     checkstyleVersion: "3.6.0",
     spotbugsVersion: "4.8.6.6",
     archunitVersion: "1.3.0",
-    addWorkflows: false
+    addWorkflows: false,
+    addPlatformCore: true
   });
 
   await addServiceStub({ repoRoot, serviceName: "identity", groupId: "com.acme" });
@@ -63,4 +64,3 @@ test("modules generator creates module container", async () => {
   const gitkeep = path.join(repoRoot, "services", "identity", "src/main/java/com/acme/identity/module/profile/.gitkeep");
   await expect(fs.pathExists(gitkeep)).resolves.toBe(true);
 });
-

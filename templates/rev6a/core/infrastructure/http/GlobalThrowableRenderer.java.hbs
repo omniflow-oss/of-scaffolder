@@ -1,7 +1,7 @@
-package {{rootPackage}}.shared.infrastructure.http;
+package {{corePackage}}.infrastructure.http;
 
-import {{rootPackage}}.shared.contract.error.Error;
-import {{rootPackage}}.shared.contract.error.ErrorCategory;
+import {{corePackage}}.contract.error.Error;
+import {{corePackage}}.contract.error.ErrorCategory;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
@@ -25,3 +25,4 @@ public class GlobalThrowableRenderer implements ExceptionMapper<Throwable> {
     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(body).build();
   }
 }
+

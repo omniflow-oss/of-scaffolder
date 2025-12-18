@@ -28,7 +28,8 @@ test("publish-ghcr workflow uses IMAGE_REGISTRY var (no hardcoded ghcr.io)", asy
     checkstyleVersion: "3.6.0",
     spotbugsVersion: "4.8.6.6",
     archunitVersion: "1.3.0",
-    addWorkflows: true
+    addWorkflows: true,
+    addPlatformCore: true
   });
 
   const publish = await fs.readFile(path.join(repoRoot, ".github/workflows/publish-ghcr.yml"), "utf8");

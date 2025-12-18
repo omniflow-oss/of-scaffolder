@@ -4,9 +4,9 @@ import {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.api.request.{{us
 import {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.api.response.{{usecasePascal}}Response;
 import {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.domain.error.{{usecasePascal}}ErrorFactory;
 import {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.domain.port.{{usecasePascal}}RepositoryPort;
-import {{rootPackage}}.shared.contract.result.Failure;
-import {{rootPackage}}.shared.contract.result.Result;
-import {{rootPackage}}.shared.contract.result.Success;
+import {{corePackage}}.contract.result.Failure;
+import {{corePackage}}.contract.result.Result;
+import {{corePackage}}.contract.result.Success;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -24,4 +24,3 @@ public class {{usecasePascal}}Service {
     return new Success<>(new {{usecasePascal}}Response("ok"));
   }
 }
-

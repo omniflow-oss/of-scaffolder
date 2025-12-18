@@ -1,0 +1,12 @@
+package {{corePackage}}.contract.event;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.Instant;
+
+public record EventMetadata(
+    @JsonProperty("tenant_id") String tenantId,
+    @JsonProperty("correlation_id") String correlationId,
+    @JsonProperty("version") String version,
+    @JsonProperty("occurred_at") Instant occurredAt
+) {}
+

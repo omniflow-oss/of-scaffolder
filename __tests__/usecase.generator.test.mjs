@@ -32,7 +32,7 @@ const addServiceStub = async ({ repoRoot, serviceName, groupId, rootPackage }) =
   return svcDir;
 };
 
-test("usecase generator bootstraps Rev6A shared + creates usecase skeleton", async () => {
+test("usecase generator bootstraps Rev6A service + creates usecase skeleton", async () => {
   const repoRoot = tmp.dirSync({ unsafeCleanup: true }).name;
   const plop = await nodePlop(path.join(__dirname, "..", "plopfile.cjs"));
 
@@ -53,7 +53,8 @@ test("usecase generator bootstraps Rev6A shared + creates usecase skeleton", asy
     checkstyleVersion: "3.6.0",
     spotbugsVersion: "4.8.6.6",
     archunitVersion: "1.3.0",
-    addWorkflows: false
+    addWorkflows: false,
+    addPlatformCore: true
   });
 
   await addServiceStub({ repoRoot, serviceName: "identity", groupId: "com.acme", rootPackage: "com.acme.identity" });
@@ -69,7 +70,8 @@ test("usecase generator bootstraps Rev6A shared + creates usecase skeleton", asy
 
   const svcRoot = path.join(repoRoot, "services", "identity");
   await expect(fs.pathExists(path.join(svcRoot, "src/main/java/com/acme/identity/boot/Application.java"))).resolves.toBe(true);
-  await expect(fs.pathExists(path.join(svcRoot, "src/main/java/com/acme/identity/shared/infrastructure/http/ResultHttpRenderer.java"))).resolves.toBe(true);
+  await expect(fs.pathExists(path.join(repoRoot, "libs/platform-core-contract/pom.xml"))).resolves.toBe(true);
+  await expect(fs.pathExists(path.join(repoRoot, "libs/platform-core-infrastructure/pom.xml"))).resolves.toBe(true);
 
   const base = path.join(svcRoot, "src/main/java/com/acme/identity/module/profile/getprofileusecase");
   await expect(fs.pathExists(path.join(base, "api/GetprofileResource.java"))).resolves.toBe(true);
@@ -77,6 +79,7 @@ test("usecase generator bootstraps Rev6A shared + creates usecase skeleton", asy
 
   const pom = await fs.readFile(path.join(svcRoot, "pom.xml"), "utf8");
   expect(pom).toContain("<artifactId>quarkus-rest</artifactId>");
+  expect(pom).toContain("<artifactId>platform-core-contract</artifactId>");
+  expect(pom).toContain("<artifactId>platform-core-infrastructure</artifactId>");
   expect(pom).toContain("<artifactId>archunit-junit5</artifactId>");
 });
-

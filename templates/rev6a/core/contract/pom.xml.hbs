@@ -1,0 +1,23 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>{{groupId}}</groupId>
+    <artifactId>platform-starter</artifactId>
+    <version>{{platformVersion}}</version>
+    <relativePath>../../platform-starter/pom.xml</relativePath>
+  </parent>
+
+  <artifactId>{{coreContractArtifactId}}</artifactId>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.smallrye.reactive</groupId>
+      <artifactId>mutiny</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
+  </dependencies>
+</project>

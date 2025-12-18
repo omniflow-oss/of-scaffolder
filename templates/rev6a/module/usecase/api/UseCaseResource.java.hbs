@@ -2,7 +2,7 @@ package {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.api;
 
 import {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.api.request.{{usecasePascal}}Request;
 import {{rootPackage}}.module.{{moduleName}}.{{usecasePackage}}.application.{{usecasePascal}}Service;
-import {{rootPackage}}.shared.infrastructure.http.ResultHttpRenderer;
+import {{corePackage}}.infrastructure.http.ResultHttpRenderer;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -24,4 +24,3 @@ public class {{usecasePascal}}Resource {
     return ResultHttpRenderer.toResponse(service.execute(request));
   }
 }
-

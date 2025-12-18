@@ -1,0 +1,33 @@
+package {{corePackage}}.infrastructure.http;
+
+import {{corePackage}}.contract.error.ErrorCategory;
+import {{corePackage}}.contract.result.Failure;
+import {{corePackage}}.contract.result.Result;
+import {{corePackage}}.contract.result.Success;
+import jakarta.ws.rs.core.Response;
+
+public final class ResultHttpRenderer {
+  private ResultHttpRenderer() {}
+
+  public static <T> Response toResponse(Result<T> result) {
+    if (result instanceof Success<T> ok) {
+      return Response.ok(ok.value()).build();
+    }
+    if (result instanceof Failure<T> ko) {
+      return Response.status(statusFor(ko.error().category())).entity(ko.error()).build();
+    }
+    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+  }
+
+  private static Response.Status statusFor(ErrorCategory category) {
+    return switch (category) {
+      case VALIDATION -> Response.Status.BAD_REQUEST;
+      case NOT_FOUND -> Response.Status.NOT_FOUND;
+      case CONFLICT -> Response.Status.CONFLICT;
+      case UNAUTHORIZED -> Response.Status.UNAUTHORIZED;
+      case FORBIDDEN -> Response.Status.FORBIDDEN;
+      case INTERNAL -> Response.Status.INTERNAL_SERVER_ERROR;
+    };
+  }
+}
+

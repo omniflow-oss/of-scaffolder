@@ -28,7 +28,8 @@ test("eventbus generator adds Rev6A shared event contract + in-memory adapter", 
     checkstyleVersion: "3.6.0",
     spotbugsVersion: "4.8.6.6",
     archunitVersion: "1.3.0",
-    addWorkflows: false
+    addWorkflows: false,
+    addPlatformCore: true
   });
 
   const svcDir = path.join(repoRoot, "services", "identity");
@@ -44,18 +45,20 @@ test("eventbus generator adds Rev6A shared event contract + in-memory adapter", 
     <relativePath>../../platform-starter/pom.xml</relativePath>
   </parent>
   <artifactId>identity</artifactId>
+  <dependencies>
+  </dependencies>
 </project>
 `
   );
 
   const res = await plop.getGenerator("eventbus").runActions({
     rootDir: repoRoot,
-    serviceName: "identity",
-    rootPackage: "com.acme.identity"
+    serviceName: "identity"
   });
 
   expect(res.failures).toHaveLength(0);
 
-  await expect(fs.pathExists(path.join(svcDir, "src/main/java/com/acme/identity/shared/contract/event/EventEnvelope.java"))).resolves.toBe(true);
-  await expect(fs.pathExists(path.join(svcDir, "src/main/java/com/acme/identity/shared/infrastructure/eventbus/inmemory/InMemoryEventBusAdapter.java"))).resolves.toBe(true);
+  const pom = await fs.readFile(path.join(svcDir, "pom.xml"), "utf8");
+  expect(pom).toContain("<artifactId>platform-core-contract</artifactId>");
+  expect(pom).toContain("<artifactId>platform-core-eventbus-inmemory</artifactId>");
 });

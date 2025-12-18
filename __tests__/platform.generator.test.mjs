@@ -30,7 +30,8 @@ test("platform generator bootstraps root + bom + platform-starter", async () => 
     checkstyleVersion: "3.6.0",
     spotbugsVersion: "4.8.6.6",
     archunitVersion: "1.3.0",
-    addWorkflows: false
+    addWorkflows: false,
+    addPlatformCore: true
   });
 
   expect(res.failures).toHaveLength(0);
@@ -41,10 +42,16 @@ test("platform generator bootstraps root + bom + platform-starter", async () => 
   await expect(fs.pathExists(path.join(repoRoot, ".platform-scaffolder.json"))).resolves.toBe(true);
   await expect(fs.pathExists(path.join(repoRoot, "services"))).resolves.toBe(true);
   await expect(fs.pathExists(path.join(repoRoot, "libs"))).resolves.toBe(true);
+  await expect(fs.pathExists(path.join(repoRoot, "libs", "platform-core-contract", "pom.xml"))).resolves.toBe(true);
+  await expect(fs.pathExists(path.join(repoRoot, "libs", "platform-core-infrastructure", "pom.xml"))).resolves.toBe(true);
+  await expect(fs.pathExists(path.join(repoRoot, "libs", "platform-core-eventbus-inmemory", "pom.xml"))).resolves.toBe(true);
 
   const rootPom = await fs.readFile(path.join(repoRoot, "pom.xml"), "utf8");
   expect(rootPom).toContain("<module>bom</module>");
   expect(rootPom).toContain("<module>platform-starter</module>");
+  expect(rootPom).toContain("<module>libs/platform-core-contract</module>");
+  expect(rootPom).toContain("<module>libs/platform-core-infrastructure</module>");
+  expect(rootPom).toContain("<module>libs/platform-core-eventbus-inmemory</module>");
   expect(rootPom).toContain("<quarkus.platform.version>3.19.1</quarkus.platform.version>");
   expect(rootPom).toContain("<archunit.version>1.3.0</archunit.version>");
 

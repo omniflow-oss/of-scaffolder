@@ -1,8 +1,8 @@
-package {{rootPackage}}.shared.infrastructure.http;
+package {{corePackage}}.infrastructure.http;
 
-import {{rootPackage}}.shared.contract.error.Error;
-import {{rootPackage}}.shared.contract.error.ErrorCategory;
-import {{rootPackage}}.shared.contract.error.ErrorDetails;
+import {{corePackage}}.contract.error.Error;
+import {{corePackage}}.contract.error.ErrorCategory;
+import {{corePackage}}.contract.error.ErrorDetails;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.validation.ConstraintViolation;
 import java.time.Instant;
@@ -32,3 +32,4 @@ public class ValidationErrorRenderer {
     );
   }
 }
+

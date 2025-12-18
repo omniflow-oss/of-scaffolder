@@ -1,0 +1,10 @@
+package {{corePackage}}.contract.event;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record EventEnvelope(
+    @JsonProperty("type") String type,
+    @JsonProperty("metadata") EventMetadata metadata,
+    @JsonProperty("payload") Object payload
+) {}
+

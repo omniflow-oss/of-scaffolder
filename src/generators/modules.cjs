@@ -7,7 +7,23 @@ const registerModulesGenerator = ({ plop, ctx, validators, utils }) => {
     prompts: [
       { type: "input", name: "rootDir", message: "Repo root directory:", default: "../..", validate: validators.validateRootPath },
       { type: "input", name: "serviceName", message: "Existing service name under services/:", validate: validators.validateArtifactId },
-      { type: "input", name: "rootPackage", message: "Root Java package (service):", validate: validators.validateJavaPackage },
+      {
+        type: "input",
+        name: "rootPackage",
+        message: "Root Java package (service):",
+        validate: validators.validateJavaPackage,
+        default: (a) => {
+          try {
+            const rootDir = path.resolve(process.cwd(), a.rootDir || ".");
+            const svcPom = path.join(rootDir, "services", a.serviceName || "", "pom.xml");
+            if (!fs.pathExistsSync(svcPom)) return "";
+            const xml = fs.readFileSync(svcPom, "utf8");
+            return xml.match(/<root\.package>\s*([^<\s]+)\s*<\/root\.package>/)?.[1] || "";
+          } catch {
+            return "";
+          }
+        }
+      },
       { type: "input", name: "moduleName", message: "Module name (package), e.g. identity, profile:", validate: validators.validateJavaIdentifier }
     ],
     actions: function (answers) {
